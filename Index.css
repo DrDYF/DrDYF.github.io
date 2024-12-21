@@ -1,0 +1,33 @@
+@font-face {
+    font-family: "Pixel";
+    src: url("/CuteImagine/Resources/Font.ttf");
+}
+
+@keyframes rainbow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+
+h1 {
+    text-align: center;
+    font-size: 3em;
+    background: linear-gradient(90deg,
+            red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+    background-size: 1100% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: rainbow 3s linear infinite;
+    /* 保证渐变流畅无缝循环 */
+}
+
+
+body {
+    font-family: "Pixel";
+}
