@@ -24,16 +24,99 @@ h1 {
     -webkit-background-clip: text;
     background-clip: text;
     animation: rainbow 3s linear infinite;
-    /* 保证渐变流畅无缝循环 */
 }
 
-
 body {
-    font-family: "Pixel";
+    font-family: "Pixel", Arial, sans-serif;
     background-image: url('/Pictures/background.png');
-    background-size: cover; 
-    background-repeat: no-repeat; 
-    background-position: center; 
-    height: 100vh; 
+    /* 页面背景图 */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    /* 背景固定 */
+    background-position: center;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* 使页面最小高度为 100vh */
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #cccbc8;
+    opacity: 0.8;
+    color: white;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+header h1 {
+    font-size: 36px;
+    margin: 0;
+}
+
+header img {
+    width: 100px;
+    height: 100px;
+    display: block;
+    margin: 10px auto;
+    border-radius: 50%;
+    opacity: 0.8;
+}
+
+main {
+    flex: 1;
+    /* 填满剩余的空间 */
+}
+
+section {
+    margin: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    /* 半透明白色背景 */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    /* 设置最大宽度 */
+    margin: 20px auto;
+    /* 居中 */
+}
+
+h2 {
+    color: #71c4ef;
+    border-bottom: 2px solid #3b3c3d;
+    padding-bottom: 5px;
+}
+
+p {
+    color: #00668c;
+}
+
+a {
+    display: block;
+    margin: 10px 0;
+    text-decoration: none;
+    color: transparent; /* 使文字透明 */
+    background: linear-gradient(90deg,
+            red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red); /* 渐变背景 */
+    background-size: 1100% auto; /* 背景大小 */
+    -webkit-background-clip: text; /* 背景裁剪，使背景只显示在文字部分 */
+    background-clip: text; /* 同上 */
+    animation: rainbow 3s linear infinite; /* 应用动画效果 */
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #00668c; /* 悬停时颜色 */
+}
+
+footer {
+    text-align: center;
+    padding: 15px 0;
+    background-image: url('/Pictures/footer-background.png');
+    background-repeat: repeat;
+    opacity: 0.8;
 }
