@@ -30,4 +30,10 @@ h1 {
 
 body {
     font-family: "Pixel";
+    background-image: url('/Pictures/background.png');
+    background-size: cover; 
+    background-repeat: no-repeat; 
+    background-position: center; 
+    height: 100vh; 
+    margin: 0;
 }
