@@ -1,26 +1,24 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UUID生成器</title>
+    <title>工具箱</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            text-align: center;
+            margin: 20px;
             background-color: #f0f0f0;
         }
 
         .container {
-            text-align: center;
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
         }
 
         button {
@@ -39,10 +37,16 @@
             background-color: #0056b3;
         }
 
-        p {
+        input[type="file"] {
+            margin: 20px 0;
+        }
+
+        #canvas-container {
             margin-top: 20px;
-            font-size: 18px;
-            word-break: break-all;
+        }
+
+        label {
+            margin: 10px;
         }
 
         input {
@@ -53,15 +57,279 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>UUID生成器</h1>
+    <h1>DYF工具箱</h1>
+
+    <!-- 图片编辑 -->
+    <div class="container" id="dyf-container">
+        <h2>图片编辑</h2>
+        <small>先选择图片再选择功能哦</small>
+
+        <input type="file" id="image1" accept="image/*" multiple>
+        <br>
+
+        <label for="combineOption">
+            <input type="checkbox" id="combineOption"> 拼接图片
+        </label>
+        <br>
+
+        <div id="combineOptions" style="display: none;">
+            <label>
+                <input type="radio" name="direction" value="horizontal" checked> 横向拼接
+            </label>
+            <label>
+                <input type="radio" name="direction" value="vertical"> 纵向拼接
+            </label>
+        </div>
+        <br>
+
+        <label for="scaleOption">
+            <input type="checkbox" id="scaleOption"> 缩放图片
+        </label>
+        <br>
+
+        <div id="scaleOptions" style="display: none;">
+            <label for="scaleFactor">选择缩放倍数：</label>
+            <input type="number" id="scaleFactor" value="1" min="1" step="0.1">
+        </div>
+        <br>
+
+        <button onclick="processImages()">处理图片</button>
+        <div id="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <!-- 下载按钮位置 -->
+        <div id="downloadButtons"></div>
+    </div>
+
+    <!-- UUID生成器 -->
+    <div class="container uuid-container">
+        <h2>UUID生成器</h2>
         <button id="generateBtn">生成 UUID</button>
         <input type="text" id="uuidInput" placeholder="UUID">
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script>
+        // DYF工具箱相关的JavaScript代码
+        const imageInput = document.getElementById('image1');
+        const combineOption = document.getElementById('combineOption');
+        const scaleOption = document.getElementById('scaleOption');
+        const scaleFactorSelect = document.getElementById('scaleFactor');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let images = [];
+        let downloadButtonCreated = false;
+
+        imageInput.addEventListener('change', handleFiles);
+
+        combineOption.addEventListener('change', function () {
+            const combineOptions = document.getElementById('combineOptions');
+            combineOptions.style.display = this.checked ? 'block' : 'none';
+        });
+
+        scaleOption.addEventListener('change', function () {
+            const scaleOptions = document.getElementById('scaleOptions');
+            scaleOptions.style.display = this.checked ? 'block' : 'none';
+        });
+
+        function handleFiles(e) {
+            const files = e.target.files;
+            const imagePromises = [...files].map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = new Image();
+                        img.onload = function () {
+                            images.push(img);
+                            resolve();
+                        };
+                        img.onerror = reject;
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(imagePromises)
+                .then(processImages)
+                .catch();
+        }
+
+        function processImages() {
+            const scaleFactor = parseFloat(scaleFactorSelect.value);
+            const direction = document.querySelector('input[name="direction"]:checked')?.value;
+            const combineImagesChecked = combineOption.checked;
+            const scaleOptionChecked = scaleOption.checked;
+
+            if (scaleOptionChecked && isNaN(scaleFactor)) {
+                alert("输入有效的缩放倍数嘞");
+                return;
+            }
+
+            if (combineImagesChecked) {
+                combineImages(scaleFactor, scaleOptionChecked, direction);
+            } else if (scaleOptionChecked) {
+                handleMultipleImages(scaleFactor);
+            }
+        }
+
+        function combineImages(scaleFactor, useHd, direction) {
+            let totalWidth = 0;
+            let totalHeight = 0;
+            let maxWidth = 0;
+            let maxHeight = 0;
+
+            for (const img of images) {
+                const scaledWidth = img.width * scaleFactor;
+                const scaledHeight = img.height * scaleFactor;
+
+                if (direction === 'horizontal') {
+                    totalWidth += scaledWidth;
+                    maxHeight = Math.max(maxHeight, scaledHeight);
+                } else if (direction === 'vertical') {
+                    totalHeight += scaledHeight;
+                    maxWidth = Math.max(maxWidth, scaledWidth);
+                }
+            }
+            canvas.width = direction === 'horizontal' ? totalWidth : maxWidth;
+            canvas.height = direction === 'vertical' ? totalHeight : maxHeight;
+            let offsetX = 0;
+            let offsetY = 0;
+            images.forEach(img => {
+                const scaledWidth = img.width * scaleFactor;
+                const scaledHeight = img.height * scaleFactor;
+
+                if (direction === 'horizontal') {
+                    ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, 0, scaledWidth, scaledHeight);
+                    offsetX += scaledWidth;
+                } else if (direction === 'vertical') {
+                    ctx.drawImage(img, 0, 0, img.width, img.height, 0, offsetY, scaledWidth, scaledHeight);
+                    offsetY += scaledHeight;
+                }
+            });
+
+            if (!downloadButtonCreated) {
+                combineDB();
+            }
+        }
+
+        async function handleMultipleImages(scaleFactor) {
+            const zip = new JSZip();
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                const scaledWidth = img.width * scaleFactor;
+                const scaledHeight = img.height * scaleFactor;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = scaledWidth;
+                canvas.height = scaledHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, scaledWidth, scaledHeight);
+
+                const dataUrl = canvas.toDataURL('image/png');
+                const fileName = `${i + 1}.png`;
+                zip.file(fileName, dataUrlToBlob(dataUrl));
+            }
+
+            const content = await zip.generateAsync({ type: "blob" });
+            if (!downloadButtonCreated) {
+                scaleDB(content);
+            }
+        }
+
+        function dataUrlToBlob(dataUrl) {
+            const parts = dataUrl.split(';base64,');
+            const contentType = parts[0].substring(5);
+            const byteCharacters = atob(parts[1]);
+            const byteArrays = [];
+
+            for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                const slice = byteCharacters.slice(offset, offset + 512);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+
+            const blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        function combineDB() {
+            if (!downloadButtonCreated) {
+                const combineButton = document.createElement('button');
+                combineButton.textContent = '下载图片';
+                combineButton.id = 'download-image-btn';
+                combineButton.onclick = downloadImage;
+                document.getElementById('downloadButtons').appendChild(combineButton);
+                downloadButtonCreated = true;
+            }
+        }
+
+        function scaleDB(content) {
+            if (!downloadButtonCreated) {
+                const scaleButton = document.createElement('button');
+                scaleButton.textContent = '下载压缩包';
+                scaleButton.id = 'download-zip-btn';
+                scaleButton.onclick = scaleDownload.bind(null, content);
+                document.getElementById('downloadButtons').appendChild(scaleButton);
+                downloadButtonCreated = true;
+            }
+        }
+
+        function scaleDownload(content) {
+            saveAs(content, "images.zip");
+            clearImages();
+        }
+
+        function downloadImage() {
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = 'processed_image.png';
+            link.click();
+            clearImages();
+        }
+
+        function clearImages() {
+            images = [];
+            imageInput.value = '';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.width = 0;
+            canvas.height = 0;
+
+            const downloadImageButton = document.getElementById('download-image-btn');
+            const downloadZipButton = document.getElementById('download-zip-btn');
+
+            if (downloadImageButton) {
+                downloadImageButton.remove();
+            }
+            if (downloadZipButton) {
+                downloadZipButton.remove();
+            }
+
+            downloadButtonCreated = false;
+        }
+
+        // UUID生成器相关的JavaScript代码
         function generateUUID() {
             const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 const r = Math.random() * 16 | 0;
@@ -76,4 +344,5 @@
         });
     </script>
 </body>
+
 </html>
