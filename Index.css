@@ -1,8 +1,44 @@
+
 @font-face {
     font-family: "Pixel";
     src: url("/CuteImagine/Resources/Font.ttf");
 }
 
+/* 加载动画样式 */
+.loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* 圆圈动画样式 */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/*彩虹字体*/
 @keyframes rainbow {
     0% {
         background-position: 0% 50%;
@@ -98,19 +134,26 @@ a {
     display: block;
     margin: 10px 0;
     text-decoration: none;
-    color: transparent; /* 使文字透明 */
+    color: transparent;
+    /* 使文字透明 */
     background: linear-gradient(90deg,
-            red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red); /* 渐变背景 */
-    background-size: 1100% auto; /* 背景大小 */
-    -webkit-background-clip: text; /* 背景裁剪，使背景只显示在文字部分 */
-    background-clip: text; /* 同上 */
-    animation: rainbow 3s linear infinite; /* 应用动画效果 */
+            red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+    /* 渐变背景 */
+    background-size: 1100% auto;
+    /* 背景大小 */
+    -webkit-background-clip: text;
+    /* 背景裁剪，使背景只显示在文字部分 */
+    background-clip: text;
+    /* 同上 */
+    animation: rainbow 3s linear infinite;
+    /* 应用动画效果 */
     font-weight: bold;
 }
 
 a:hover {
     text-decoration: underline;
-    color: #00668c; /* 悬停时颜色 */
+    color: #00668c;
+    /* 悬停时颜色 */
 }
 
 footer {
