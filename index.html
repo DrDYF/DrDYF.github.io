@@ -7,36 +7,7 @@
     <title>Dr_DYF的网站</title>
     <link rel="icon" href="/Pictures/Dr_DYF.png" type="image/x-icon">
     <link rel="stylesheet" href="/Index.css">
-    <style>
-        /* 加载动画样式 */
-        .loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        /* 圆圈动画样式 */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #000;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    
 </head>
 
 <body>
@@ -71,7 +42,7 @@
 
         <section id="about">
             <h2>关于我</h2>
-            <a>小秘密</a>
+            <a id="secret">小秘密</a>
         </section>
 
         <section id="contact">
@@ -87,9 +58,7 @@
     <script src="/Index.js"></script>
     <script>
         document.getElementById("secret").onclick = function() {alert("想啥哦")}
-         window.addEventListener('load', (event) => {
-            document.querySelector('.loader').style.display = 'none';
-        });
+         
     </script>
 </body>
 
