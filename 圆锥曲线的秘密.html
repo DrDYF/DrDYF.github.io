@@ -29,11 +29,9 @@
 
         const loadingTask = pdfjsLib.getDocument(url);
         loadingTask.promise.then(pdf => {
-            console.log('PDF loaded');
 
             // 获取 PDF 的页数
             const numPages = pdf.numPages;
-            console.log('Number of Pages: ' + numPages);
 
             const pdfViewer = document.getElementById('pdf-viewer');
 
@@ -55,9 +53,6 @@
                         canvasContext: context,
                         viewport: viewport
                     };
-                    page.render(renderContext).promise.then(() => {
-                        console.log('Page rendered');
-                    });
                 });
             }
         }, reason => {
