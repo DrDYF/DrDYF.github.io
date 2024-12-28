@@ -4,59 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr_DYF的网站</title>
     <link rel="icon" href="/Pictures/Dr_DYF.png" type="image/x-icon">
+    <title>Dr_DYF的网站</title>
     <link rel="stylesheet" href="/Index.css">
-    
 </head>
 
 <body>
-    <header>
-        <h1>Dr_DYF</h1>
-        <a href="/Pictures/2025XT.png" download="2025XT.png">
-        <img src="/Pictures/Dr_DYF.png" alt="Dr_DYF">
-        </a>
-    </header>
+    <div class="container" id="mainContainer">
+        <img src="/Pictures/title.png" alt="Dr_DYF" class="title"><br>
+        <button class="button" id="singlePlayerButton">单人游戏</button><br>
+        <button class="button" id="multiplePlayerButton">多人游戏</button><br>
+        <div class="button-container">
+            <button class="button" id="optionButton">选项</button>
+            <button class="button">退出</button>
+        </div>
+    </div>
 
-    <main>
-        <section id="home">
-            <h2>首页</h2>
-            <p title="你干嘛～～">这是我的个人网站首页。欢迎浏览！</p>
-            <a href="/其它东东/圆锥曲线的秘密.pdf" download="圆锥曲线的秘密">圆锥曲线的秘密</a>
-            <a href="/其它东东/Plain Craft Launcher 2.exe" download="Plain Craft Launcher 2.exe">PCL2</a>
-            <a href="/其它东东/2048.cpp" download="2048.cpp">2048</a>
-            <a href="/其它东东/双色球.cpp" download="双色球.cpp">双色球</a>
-            <a href="https://code.fittentech.com/?ref=xl199#download">AI</a>
-        </section>
+    <div class="container hidden" id="singlePlayerContainer">
+        <a href="https://code.fittentech.com/?ref=xl199#download"><button class="button">AI</button></a>
+        <a href="/资源/2048.cpp" download="2048.cpp"><button class="button">2048</button></a>
+        <a href="/资源/双色球.cpp" download="2048.cpp"><button class="button">双色球</button></a>
+        <br><br>
+        <button class="button finishButton">完成</button>
+    </div>
 
-        <section id="tools">
-            <h2>工具</h2>
-            <ul>
-                <li><a href="https://mccag.cn/">可爱头像生成器</a></li>
-                <li><a href="https://chcat1320.github.io/CN_1320_Toolbox/toolbox/NetEase-cloud-music-downloader/">音乐</a></li>
-                <li><a href="/工具.html">DYF工具箱</a></li>
-                <li><a href="/混淆.html">JS混淆</a></li>
-                <li><a href="/MCBE.html">基岩版Addon</a></li>
-            </ul>
-        </section>
+    <div class="container hidden" id="multiplePlayerContainer">
+        <a href="https://mccag.cn/"><button class="button">可爱头像生成器</button></a>
+        <a href="https://chcat1320.github.io/CN_1320_Toolbox/toolbox/NetEase-cloud-music-downloader/"><button class="button">音乐</button></a>
+        <a href="/工具.html"><button class="button">DYF工具箱</button></a>
+        <a href="/混淆.html"><button class="button">JS混淆</button></a>
+        <a href="/MCBE.html"><button class="button">基岩版Addon</button></a>
+        <br><br>
+        <button class="button finishButton">完成</button>
+    </div>
 
-        <section id="about">
-            <h2>关于我</h2>
-            <a href="/secret.html">小秘密</a>
-        </section>
+    <div class="container hidden" id="optionContainer">
+        <a href="secret.html"><button class="button">小秘密</button></a>
+        <br><br>
+        <button class="button finishButton">完成</button>
+    </div>
 
-        <section id="contact">
-            <h2>联系方式</h2>
-        </section>
-    </main>
-
+    <audio id="clickSound" src="/sounds/click1.mp3" preload="auto"></audio>
     <footer>
         <p>© 2024 Dr_DYF的网站</p>
-        <p id="visit-count"></p>
     </footer>
-
     <script src="/Index.js"></script>
 </body>
 
 </html>
-
