@@ -1,12 +1,40 @@
-// 获取访问次数
-let visitCount = localStorage.getItem('visitCount');
-// 如果没有设置，初始化为0
-if (!visitCount) {
-    visitCount = 0;
+const mainContainer = document.getElementById('mainContainer');
+const singlePlayerContainer = document.getElementById('singlePlayerContainer');
+const multiplePlayerContainer = document.getElementById('multiplePlayerContainer');
+const optionContainer = document.getElementById('optionContainer');
+
+const buttons = document.querySelectorAll('.button');
+
+function playClickSound() {
+    const clickSound = document.getElementById('clickSound');
+    clickSound.currentTime = 0;
+    clickSound.play();
 }
-// 增加访问次数
-visitCount++;
-// 将更新后的值保存到 localStorage
-localStorage.setItem('visitCount', visitCount);
-// 显示访问次数
-document.getElementById('visit-count').innerText = `你第 ${visitCount} 次来啦`;
+
+buttons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        playClickSound();
+
+        if (e.target.id === 'singlePlayerButton') {
+            toggleContainers(mainContainer, singlePlayerContainer);
+        } else if (e.target.id === 'multiplePlayerButton') {
+            toggleContainers(mainContainer, multiplePlayerContainer);
+        } else if (e.target.id === 'optionButton') {
+            toggleContainers(mainContainer, optionContainer);
+        } else if (e.target.classList.contains('finishButton')) {
+            // 根据当前显示的容器确定要返回的容器
+            if (!singlePlayerContainer.classList.contains('hidden')) {
+                toggleContainers(singlePlayerContainer, mainContainer);
+            } else if (!multiplePlayerContainer.classList.contains('hidden')) {
+                toggleContainers(multiplePlayerContainer, mainContainer);
+            } else if (!optionContainer.classList.contains('hidden')) {
+                toggleContainers(optionContainer, mainContainer);
+            }
+        }
+    });
+});
+
+function toggleContainers(hideContainer, showContainer) {
+    hideContainer.classList.add('hidden');
+    showContainer.classList.remove('hidden');
+}
