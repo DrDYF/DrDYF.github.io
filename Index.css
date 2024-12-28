@@ -1,10 +1,104 @@
+:root {
+    --bg-color: rgba(0, 0, 0, 0.1);
+    --text-color: #ffffff;
+    --button-width: 70%;
+}
 
 @font-face {
     font-family: "Pixel";
     src: url("/CuteImagine/Resources/Font.ttf");
 }
 
-/*彩虹字体*/
+.title {
+    width: 90%;
+    height: auto;
+}
+
+body {
+    font-family: "Pixel";
+    color: var(--text-color);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    animation: backgroundAnimation 20s infinite;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+}
+
+@keyframes backgroundAnimation {
+    0% {
+        background-image: url('/Pictures/background.png');
+    }
+
+    25% {
+        background-image: url('/Pictures/background2.png');
+    }
+
+    50% {
+        background-image: url('/Pictures/background3.png');
+    }
+
+    75% {
+        background-image: url('/Pictures/background4.png');
+    }
+
+    100% {
+        background-image: url('/Pictures/background.png');
+    }
+}
+
+.container {
+    max-width: 80%;
+    margin: 50% auto;
+    padding: 20px;
+    background-color: var(--bg-color);
+    border-radius: 10px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.hidden {
+    display: none;
+}
+
+.button {
+    font-family: "Pixel";
+    background-image: url('/Pictures/button.png');
+    background-size: 100% 100%;
+    border: none;
+    color: white;
+    padding: 0;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 2;
+    margin: 5px 5px;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: background-color 0.3s;
+    width: var(--button-width);
+    height: 35%;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.button:hover {
+    background-color: rgba(124, 179, 66, 0.6);
+}
+
+.button:active {
+    background-image: url('/Pictures/button_highlighted.png');
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 73%;
+    margin: 2px auto;
+}
+
 @keyframes rainbow {
     0% {
         background-position: 0% 50%;
@@ -15,117 +109,16 @@
     }
 }
 
-
-h1 {
-    text-align: center;
-    font-size: 3em;
-    background: linear-gradient(90deg,
-            red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
-    background-size: 1100% auto;
-    color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
-    animation: rainbow 3s linear infinite;
-}
-
-body {
-    font-family: "Pixel", Arial, sans-serif;
-    background-image: url('/Pictures/background.png');
-    /* 页面背景图 */
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    /* 背景固定 */
-    background-position: center;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    /* 使页面最小高度为 100vh */
-}
-
-header {
-    text-align: center;
-    padding: 20px;
-    background-color: #cccbc8;
-    opacity: 0.8;
-    color: white;
-    border-radius: 10px;
-    backdrop-filter: blur(5px);
-}
-
-header h1 {
-    font-size: 36px;
-    margin: 0;
-}
-
-header img {
-    width: 100px;
-    height: 100px;
-    display: block;
-    margin: 10px auto;
-    border-radius: 50%;
-    opacity: 0.8;
-}
-
-main {
-    flex: 1;
-    /* 填满剩余的空间 */
-}
-
-section {
-    margin: 20px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.8);
-    /* 半透明白色背景 */
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    max-width: 600px;
-    /* 设置最大宽度 */
-    margin: 20px auto;
-    /* 居中 */
-}
-
-h2 {
-    color: #71c4ef;
-    border-bottom: 2px solid #3b3c3d;
-    padding-bottom: 5px;
-}
-
-p {
-    color: #00668c;
-}
-
-a {
+footer p {
     display: block;
     margin: 10px 0;
     text-decoration: none;
     color: transparent;
-    /* 使文字透明 */
     background: linear-gradient(90deg,
             red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
-    /* 渐变背景 */
     background-size: 1100% auto;
-    /* 背景大小 */
     -webkit-background-clip: text;
-    /* 背景裁剪，使背景只显示在文字部分 */
     background-clip: text;
-    /* 同上 */
     animation: rainbow 3s linear infinite;
-    /* 应用动画效果 */
     font-weight: bold;
-}
-
-a:hover {
-    text-decoration: underline;
-    color: #00668c;
-    /* 悬停时颜色 */
-}
-
-footer {
-    text-align: center;
-    padding: 15px 0;
-    background-image: url('/Pictures/footer-background.png');
-    background-repeat: repeat;
-    opacity: 0.8;
 }
