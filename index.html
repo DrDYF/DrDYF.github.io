@@ -12,12 +12,17 @@
             --text-color: #ffffff;
             --button-width: 70%;
         }
-
+        
         @font-face {
             font-family: "Pixel";
             src: url("/CuteImagine/Resources/Font.ttf");
         }
-
+        
+        .title {
+            width: 90%;
+            height: auto;
+        }
+        
         body {
             font-family: "Pixel";
             color: var(--text-color);
@@ -30,13 +35,29 @@
             background-attachment: fixed;
             background-position: center;
         }
+        
         @keyframes backgroundAnimation {
-            0% {background-image: url('/Pictures/background.png');}
-            25% {background-image: url('/Pictures/background2.png');}
-            50% {background-image: url('/Pictures/background3.png');}
-            75% {background-image: url('/Pictures/background4.png');}
-            100% {background-image: url('/Pictures/background.png');}
+            0% {
+        background-image: url('/Pictures/background.png');
+            }
+        
+            25% {
+        background-image: url('/Pictures/background2.png');
+            }
+        
+            50% {
+        background-image: url('/Pictures/background3.png');
+            }
+        
+            75% {
+        background-image: url('/Pictures/background4.png');
+            }
+        
+            100% {
+        background-image: url('/Pictures/background.png');
+            }
         }
+        
         .container {
             max-width: 80%;
             margin: 50% auto;
@@ -45,9 +66,11 @@
             border-radius: 10px;
             transition: opacity 0.5s ease-in-out;
         }
+        
         .hidden {
             display: none;
         }
+        
         .button {
             font-family: "Pixel";
             background-image: url('/Pictures/button.png');
@@ -56,6 +79,7 @@
             color: white;
             padding: 0;
             text-align: center;
+            text-decoration: none;
             display: inline-block;
             font-size: 12px;
             line-height: 2;
@@ -68,36 +92,44 @@
             white-space: nowrap;
             overflow: hidden;
         }
+        
         .button:hover {
             background-color: rgba(124, 179, 66, 0.6);
         }
+        
         .button:active {
             background-image: url('/Pictures/button_highlighted.png');
         }
+        
         .button-container {
             display: flex;
             justify-content: space-between;
             width: 73%;
             margin: 2px auto;
         }
+        
+        @keyframes rainbow {
+            0% {
+        background-position: 0% 50%;
+            }
+        
+            100% {
+        background-position: 100% 50%;
+            }
+        }
+        
         footer p {
+            display: block;
             margin: 10px 0;
+            text-decoration: none;
             color: transparent;
             background: linear-gradient(90deg,
-                    red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+            red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
             background-size: 1100% auto;
             -webkit-background-clip: text;
             background-clip: text;
             animation: rainbow 3s linear infinite;
             font-weight: bold;
-        }
-        @keyframes rainbow {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 100% 50%;
-            }
         }
     </style>
 </head>
@@ -137,6 +169,9 @@
     <footer>
         <p>© 2024 Dr_DYF的网站</p>
     </footer>
-    <script>const mainContainer=document.getElementById("mainContainer"),singlePlayerContainer=document.getElementById("singlePlayerContainer"),multiplePlayerContainer=document.getElementById("multiplePlayerContainer"),optionContainer=document.getElementById("optionContainer"),buttons=document.querySelectorAll(".button");function playClickSound(){const n=document.getElementById("clickSound");n.currentTime=0,n.play()}function toggleContainers(n,t){n.classList.add("hidden"),t.classList.remove("hidden")}buttons.forEach(n=>{n.addEventListener("click",n=>{playClickSound(),"singlePlayerButton"===n.target.id?toggleContainers(mainContainer,singlePlayerContainer):"multiplePlayerButton"===n.target.id?toggleContainers(mainContainer,multiplePlayerContainer):"optionButton"===n.target.id?toggleContainers(mainContainer,optionContainer):n.target.classList.contains("finishButton")&&(singlePlayerContainer.classList.contains("hidden")?multiplePlayerContainer.classList.contains("hidden")?optionContainer.classList.contains("hidden")||toggleContainers(optionContainer,mainContainer):toggleContainers(multiplePlayerContainer,mainContainer):toggleContainers(singlePlayerContainer,mainContainer))})});</script>
+    <script>
+        const mainContainer=document.getElementById("mainContainer"),singlePlayerContainer=document.getElementById("singlePlayerContainer"),multiplePlayerContainer=document.getElementById("multiplePlayerContainer"),optionContainer=document.getElementById("optionContainer"),buttons=document.querySelectorAll(".button");function playClickSound(){const n=document.getElementById("clickSound");n.currentTime=0,n.play()}function toggleContainers(n,t){n.classList.add("hidden"),t.classList.remove("hidden")}buttons.forEach(n=>{n.addEventListener("click",n=>{playClickSound(),"singlePlayerButton"===n.target.id?toggleContainers(mainContainer,singlePlayerContainer):"multiplePlayerButton"===n.target.id?toggleContainers(mainContainer,multiplePlayerContainer):"optionButton"===n.target.id?toggleContainers(mainContainer,optionContainer):n.target.classList.contains("finishButton")&&(singlePlayerContainer.classList.contains("hidden")?multiplePlayerContainer.classList.contains("hidden")?optionContainer.classList.contains("hidden")||toggleContainers(optionContainer,mainContainer):toggleContainers(multiplePlayerContainer,mainContainer):toggleContainers(singlePlayerContainer,mainContainer))})});
+    </script>
 </body>
+
 </html>
