@@ -6,7 +6,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/Pictures/Dr_DYF.png" type="image/x-icon">
     <title>Dr_DYF的网站</title>
-    <link rel="stylesheet" href="/Index.css">
+    <style>
+        :root {
+            --bg-color: rgba(0, 0, 0, 0.1);
+            --text-color: #ffffff;
+            --button-width: 70%;
+        }
+
+        @font-face {
+            font-family: "Pixel";
+            src: url("/CuteImagine/Resources/Font.ttf");
+        }
+
+        body {
+            font-family: "Pixel";
+            color: var(--text-color);
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            animation: backgroundAnimation 20s infinite;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        @keyframes backgroundAnimation {
+            0% {background-image: url('/Pictures/background.png');}
+            25% {background-image: url('/Pictures/background2.png');}
+            50% {background-image: url('/Pictures/background3.png');}
+            75% {background-image: url('/Pictures/background4.png');}
+            100% {background-image: url('/Pictures/background.png');}
+        }
+        .container {
+            max-width: 80%;
+            margin: 50% auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border-radius: 10px;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .hidden {
+            display: none;
+        }
+        .button {
+            font-family: "Pixel";
+            background-image: url('/Pictures/button.png');
+            background-size: 100% 100%;
+            border: none;
+            color: white;
+            padding: 0;
+            text-align: center;
+            display: inline-block;
+            font-size: 12px;
+            line-height: 2;
+            margin: 5px 5px;
+            cursor: pointer;
+            border-radius: 1px;
+            transition: background-color 0.3s;
+            width: var(--button-width);
+            height: 35%;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .button:hover {
+            background-color: rgba(124, 179, 66, 0.6);
+        }
+        .button:active {
+            background-image: url('/Pictures/button_highlighted.png');
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 73%;
+            margin: 2px auto;
+        }
+        footer p {
+            margin: 10px 0;
+            color: transparent;
+            background: linear-gradient(90deg,
+                    red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+            background-size: 1100% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: rainbow 3s linear infinite;
+            font-weight: bold;
+        }
+        @keyframes rainbow {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -19,15 +112,13 @@
             <button class="button">退出</button>
         </div>
     </div>
-
     <div class="container hidden" id="singlePlayerContainer">
         <a href="https://code.fittentech.com/?ref=xl199#download"><button class="button">AI</button></a>
         <a href="/资源/2048.cpp" download="2048.cpp"><button class="button">2048</button></a>
-        <a href="/资源/双色球.cpp" download="2048.cpp"><button class="button">双色球</button></a>
+        <a href="/资源/双色球.cpp" download="双色球.cpp"><button class="button">双色球</button></a>
         <br><br>
         <button class="button finishButton">完成</button>
     </div>
-
     <div class="container hidden" id="multiplePlayerContainer">
         <a href="https://mccag.cn/"><button class="button">可爱头像生成器</button></a>
         <a href="https://chcat1320.github.io/CN_1320_Toolbox/toolbox/NetEase-cloud-music-downloader/"><button class="button">音乐</button></a>
@@ -37,18 +128,15 @@
         <br><br>
         <button class="button finishButton">完成</button>
     </div>
-
     <div class="container hidden" id="optionContainer">
         <a href="secret.html"><button class="button">小秘密</button></a>
         <br><br>
         <button class="button finishButton">完成</button>
     </div>
-
     <audio id="clickSound" src="/sounds/click1.mp3" preload="auto"></audio>
     <footer>
         <p>© 2024 Dr_DYF的网站</p>
     </footer>
-    <script src="/Index.js"></script>
+    <script>const mainContainer=document.getElementById("mainContainer"),singlePlayerContainer=document.getElementById("singlePlayerContainer"),multiplePlayerContainer=document.getElementById("multiplePlayerContainer"),optionContainer=document.getElementById("optionContainer"),buttons=document.querySelectorAll(".button");function playClickSound(){const n=document.getElementById("clickSound");n.currentTime=0,n.play()}function toggleContainers(n,t){n.classList.add("hidden"),t.classList.remove("hidden")}buttons.forEach(n=>{n.addEventListener("click",n=>{playClickSound(),"singlePlayerButton"===n.target.id?toggleContainers(mainContainer,singlePlayerContainer):"multiplePlayerButton"===n.target.id?toggleContainers(mainContainer,multiplePlayerContainer):"optionButton"===n.target.id?toggleContainers(mainContainer,optionContainer):n.target.classList.contains("finishButton")&&(singlePlayerContainer.classList.contains("hidden")?multiplePlayerContainer.classList.contains("hidden")?optionContainer.classList.contains("hidden")||toggleContainers(optionContainer,mainContainer):toggleContainers(multiplePlayerContainer,mainContainer):toggleContainers(singlePlayerContainer,mainContainer))})});</script>
 </body>
-
 </html>
