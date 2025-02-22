@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生日快乐！姐！</title>
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('/Pictures/Font.ttf') format('truetype');
+        }
+        
+        :root {
+            --mc-green: #7CFC00;
+            --mc-end: #00FCB6;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('/Pictures/End.webp') no-repeat center top fixed;
+            background-size: cover;
+            font-family: 'CustomFont', cursive;
+        }
+        
+        /* 移动端样式 */
+        @media (max-width: 768px) {
+            body {
+                background-position: calc(50% - 90px) top;
+            }
+        }
+        
+        /* 电脑端样式 */
+        @media (min-width: 769px) {
+            body {
+                background-position: calc(50% - 190px) top;
+            }
+        }
+        
+        .container {
+            animation: novelEnter 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--mc-end);
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+        }
+        
+        /* 黑色超浅背景 */
+        #normalMessage {
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        /* 动态渐变文字效果 */
+        #normalMessage h1 {
+            background: linear-gradient(45deg, #F8F7F7, #93BFFE);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientText 3s ease-in-out infinite;
+        }
+        
+        /* 动态渐变动画 */
+        @keyframes gradientText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes novelEnter {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) rotateZ(-8deg);
+                filter: blur(4px);
+            }
+            70% {
+                transform: scale(1.05) rotateZ(3deg);
+            }
+            85% {
+                transform: scale(0.98);
+            }
+            95% {
+                transform: scale(1.02);
+            }
+            100% {
+                transform: scale(1) rotateZ(0);
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+        
+        /* 图片按钮样式 */
+        .image-button {
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+            cursor: pointer;
+            width: 100%;
+            height: 50%;
+            border-radius: 1px;
+            overflow: hidden;
+        }
+        
+        .image-button img {
+            display: block;
+            width: 100%;
+            height: 50%;
+            border-radius: 1px;
+        }
+        
+        .image-button .text {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        #countdown {
+            font-family: 'CustomFont', cursive;
+            text-shadow: 0 0 5px rgba(124, 252, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 5px var(--mc-green); }
+            to { text-shadow: 0 0 15px var(--mc-end), 0 0 5px var(--mc-green); }
+        }
+        #birthdayMessage {
+            background: rgba(255, 255, 255, 0.7);
+            transition: opacity 0.5s ease;
+        }
+        
+        #birthdayMessage .bless {
+            width: 50px;
+            height: 50px;
+            background: #ff3366;
+            clip-path: polygon(
+                50% 15%,
+                70% 30%,
+                85% 50%,
+                70% 70%,
+                50% 85%,
+                30% 70%,
+                15% 50%,
+                30% 30%
+            );
+            margin: 15px auto;
+        }
+        
+        #birthdayMessage h1 {
+            color: var(--mc-end);
+            margin: 15px 0;
+        }
+        
+        /* 新增礼物按钮样式 */
+        #giftButton {
+            margin: 20px auto;
+            width: 120px;
+            height: 120px;
+        }
+        
+        #giftButton img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        #giftButton:hover img {
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+            .petal {
+                width: 12px;
+                height: 12px;
+            }
+        }
+        
+        /* 花瓣容器 */
+        #petal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* 单个花瓣样式 */
+        .petal {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: linear-gradient(135deg, #ff99cc 0%, #ff6699 100%);
+            clip-path: polygon(
+                50% 0%,
+                70% 30%,
+                100% 50%,
+                70% 70%,
+                50% 100%,
+                30% 70%,
+                0% 50%,
+                30% 30%
+            );
+            opacity: 0.8;
+            animation: petalFall linear infinite;
+        }
+        
+        @keyframes petalFall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+        
+        .heart {
+            position: absolute;
+            pointer-events: none;
+            animation: heartFloat 1s ease-out;
+            font-size: 24px;
+            opacity: 1;
+        }
+        
+        @keyframes heartFloat {
+            0% { transform: translateY(0) scale(1) rotate(6deg); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0.5) rotate(0deg); opacity: 0; }
+        }
+        
+        @keyframes msgFloat {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="petal-container"></div>
+    <div class="container" id="birthdayMessage" style="display: none;">
+        <div class="bless"></div>
+        <h1>姐姐生日快乐!</h1>
+        <div class="image-button" id="giftButton" onclick="gift()">
+            <img src="/Pictures/gift_closed.png" alt="宝箱" id="giftImage">
+        </div>
+    </div>
+
+    <div class="container" id="normalMessage" style="display: none;">
+        <h1>加载世界中</h1>
+        <img src="/Pictures/time.gif" alt="时间">
+        <div id="countdown" style="color: var(--mc-end); margin: 15px 0; font-size: 1.2em;"></div>
+        <div class="image-button" id="exitButton">
+            <img src="/Pictures/button.webp" alt="退出游戏">
+            <div class="text">退出游戏</div>
+        </div>
+    </div>
+
+    <script>
+        const messages = [
+            "祝姐天天开心！",
+            "好运常相伴！",
+            "心想事成～",
+            "加油！！！",
+            "上岸！！！",
+            "吸走姐的霉运",
+            "每天都有好心情！"
+        ];
+        
+        function showRandomMessage() {
+            const msg = document.createElement('div');
+            msg.className = 'floating-msg';
+            msg.textContent = messages[Math.floor(Math.random() * messages.length)];
+        
+            msg.style.position = 'fixed';
+            msg.style.left = Math.random() * 80 + '%';
+            msg.style.top = Math.random() * 80 + '%';
+            msg.style.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+            msg.style.animation = 'msgFloat 3s ease-out';
+        
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+        
+        setInterval(showRandomMessage, 5000);
+        
+        document.addEventListener('click', function (e) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '💛💙';
+            heart.style.left = e.clientX + 'px';
+            heart.style.top = e.clientY + 'px';
+            document.body.appendChild(heart);
+        
+            setTimeout(() => heart.remove(), 1000);
+        });
+        
+        function playSound() {
+            const audio = new Audio('/sounds/click1.mp3');
+            audio.play();
+        }
+        
+        function toggleButton() {
+            const button = document.getElementById('exitButton');
+            const img = button.querySelector('img');
+            const originalSrc = '/Pictures/button.webp';
+            const highlightedSrc = '/Pictures/button_highlighted.webp';
+        
+            if (img.src.endsWith(originalSrc)) {
+                img.src = highlightedSrc;
+                playSound();
+                setTimeout(() => {
+                    window.close();
+                }, 200);
+            }
+        }
+        
+        function enterWorld() {
+            playSound();
+            const normalMsg = document.getElementById('normalMessage');
+            const birthdayMsg = document.getElementById('birthdayMessage');
+        
+            requestAnimationFrame(() => {
+                normalMsg.style.display = 'none';
+                birthdayMsg.style.display = 'block';
+                birthdayMsg.style.transform = 'translateZ(0)';
+                birthdayMsg.style.animation = 'none';
+                requestAnimationFrame(() => {
+                    birthdayMsg.style.animation = 'novelEnter 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+                });
+            });
+        }
+        
+        function updateUIAfterLoading() {
+            document.querySelector('#normalMessage h1').textContent = '加载完成';
+            const button = document.getElementById('exitButton');
+            button.querySelector('.text').textContent = '进入世界';
+            button.removeEventListener('click', toggleButton);
+            button.addEventListener('click', enterWorld);
+        }
+        
+        function checkDate() {
+            const normalMsg = document.getElementById('normalMessage');
+            playSound();
+            normalMsg.style.display = 'block';
+            normalMsg.style.opacity = '0';
+        
+            requestAnimationFrame(() => {
+                normalMsg.style.animation = 'novelEnter 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+                normalMsg.style.opacity = '1';
+            });
+        
+            if (new Date().getMonth() === 4 && new Date().getDate() === 19) {
+                setTimeout(updateUIAfterLoading, 2000);
+            }
+        }
+        
+        let isOpened = false;
+        
+        function gift() {
+            if (isOpened) return;
+        
+            const audio = new Audio('/sounds/gift_open.mp3');
+            audio.play();
+        
+            document.getElementById('giftImage').src = '/Pictures/gift_opened.png';
+        
+            const link = document.createElement('a');
+            link.href = '/给姐的.py';
+            link.download = '给姐的电子礼物.py';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        
+            isOpened = true;
+        }
+        
+        document.getElementById('exitButton').addEventListener('click', toggleButton);
+        
+        function createPetals() {
+            const container = document.getElementById('petal-container');
+            const petalCount = 15;
+        
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+        
+                const startLeft = Math.random() * 100;
+                const animationDuration = 8 + Math.random() * 5;
+                const animationDelay = Math.random() * 5;
+                const scale = 0.5 + Math.random() * 0.5;
+        
+                petal.style.left = `${startLeft}%`;
+                petal.style.animationDuration = `${animationDuration}s`;
+                petal.style.animationDelay = `-${animationDelay}s`;
+                petal.style.transform = `scale(${scale})`;
+        
+                container.appendChild(petal);
+            }
+        }
+        function updateCountdown() {
+            const currentYear = new Date().getFullYear();
+            // 创建目标日期时设置时间为00:00:00
+            let targetDate = new Date(currentYear, 4, 19, 0, 0, 0); 
+            
+            // 创建当前日期的"日期部分"（忽略时间）
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // 设置为当天零点
+            
+            // 使用日期部分比较
+            if (today > targetDate) {
+                targetDate.setFullYear(currentYear + 1);
+            }
+        
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+        
+            // 添加精确到当天的判断
+            const isToday = new Date().getMonth() === 4 && new Date().getDate() === 19;
+            
+            if (isToday || distance < 0) {
+                document.getElementById('countdown').innerHTML = "就是今天！🎉";
+                return;
+            }
+        
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+            document.getElementById('countdown').innerHTML = 
+        `${days} 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒<br>姐姐生日！`;
+        }
+        window.onload = function () {
+            checkDate();
+            createPetals();
+            // 每秒更新倒计时
+            setInterval(updateCountdown, 1000);
+            updateCountdown(); // 立即执行一次避免初始空白
+        }
+    </script>
+</body>
+
+</html>
