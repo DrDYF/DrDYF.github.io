@@ -249,6 +249,35 @@
             0% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-100px); }
         }
+        
+        /* 新增/修改的CSS样式 */
+        .loading-container {
+            position: relative;
+            width: 182px;
+            height: 5px;
+            margin: 15px auto;
+        }
+        
+        .experience-bar-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('/Pictures/experience_bar_background.png') no-repeat;
+            background-size: contain;
+        }
+        
+        .experience-bar-progress {
+            position: absolute;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: url('/Pictures/experience_bar_progress.webp') repeat-x;
+            background-size: contain;
+            transition: width 1s linear;
+            z-index: 1;
+            /* 新增对齐方式 */
+            background-position: left center;
+        }
     </style>
 </head>
 
@@ -266,6 +295,10 @@
         <h1>加载世界中</h1>
         <img src="/Pictures/time.gif" alt="时间">
         <div id="countdown" style="color: var(--mc-end); margin: 15px 0; font-size: 1.2em;"></div>
+        <div class="loading-container">
+            <div class="experience-bar-bg"></div>
+            <div class="experience-bar-progress"></div>
+        </div>
         <div class="image-button" id="exitButton">
             <img src="/Pictures/button.webp" alt="退出游戏">
             <div class="text">退出游戏</div>
@@ -414,39 +447,55 @@
                 container.appendChild(petal);
             }
         }
+        
         function updateCountdown() {
             const currentYear = new Date().getFullYear();
-            // 创建目标日期时设置时间为00:00:00
-            let targetDate = new Date(currentYear, 4, 19, 0, 0, 0); 
-            
-            // 创建当前日期的"日期部分"（忽略时间）
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // 设置为当天零点
-            
-            // 使用日期部分比较
-            if (today > targetDate) {
-                targetDate.setFullYear(currentYear + 1);
+            // 创建目标日期（5月19日）
+            let targetDate = new Date(currentYear, 4, 19); // 注意：月份从0开始，4表示5月
+        
+            // 获取当前时间
+            const now = new Date();
+        
+            // 如果今年生日已过，设置为明年
+            if (now > targetDate) {
+        targetDate.setFullYear(currentYear + 1);
             }
         
-            const now = new Date().getTime();
-            const distance = targetDate - now;
+            // 计算剩余时间（毫秒）
+            const timeDiff = targetDate - now;
         
-            // 添加精确到当天的判断
+            // 计算剩余天数
+            const totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        
+            // 计算进度（剩余天数/365）
+            let progress = (365 - totalDays) / 365;
+            progress = Math.min(Math.max(progress, 0), 1); // 限制在0-1之间
+        
+            // 设置进度条宽度（从左向右递增）
+            const progressBar = document.querySelector('.experience-bar-progress');
+            progressBar.style.width = (progress * 100) + '%';
+        
+            // 判断是否是生日当天
             const isToday = new Date().getMonth() === 4 && new Date().getDate() === 19;
-            
-            if (isToday || distance < 0) {
-                document.getElementById('countdown').innerHTML = "就是今天！🎉";
-                return;
+        
+            // 如果是生日当天
+            if (isToday || timeDiff < 0) {
+        document.getElementById('countdown').innerHTML = "今天！！🎉";
+        progressBar.style.width = '100%'; // 当天满进度
+        return;
             }
         
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            // 计算剩余时间
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
         
+            // 更新倒计时显示
             document.getElementById('countdown').innerHTML = 
         `${days} 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒<br>姐姐生日！`;
         }
+        
         window.onload = function () {
             checkDate();
             createPetals();
@@ -457,4 +506,13 @@
     </script>
 </body>
 
-</html>
+
+
+
+
+
+
+
+
+
+            </html>
