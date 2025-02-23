@@ -346,7 +346,7 @@
             setTimeout(() => msg.remove(), 3000);
         }
         
-        setInterval(showRandomMessage, 5000);
+        setInterval(showRandomMessage, 3000);
         
         document.addEventListener('click', function (e) {
             const heart = document.createElement('div');
@@ -373,9 +373,6 @@
             if (img.src.endsWith(originalSrc)) {
                 img.src = highlightedSrc;
                 playSound();
-                setTimeout(() => {
-                    window.close();
-                }, 200);
             }
         }
         
@@ -491,7 +488,7 @@
         
             // 如果是生日当天
             if (isToday || timeDiff < 0) {
-        document.getElementById('countdown').innerHTML = "今天！！🎉";
+        document.getElementById('countdown').innerHTML = "今天！！有彩danm";
         progressBar.style.width = '100%'; // 当天满进度
         return;
             }
@@ -515,5 +512,9 @@
             updateCountdown(); // 立即执行一次避免初始空白
         }
     </script>
+
+
+
+    
 </body>
 </html>
