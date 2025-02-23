@@ -1,6 +1,6 @@
 # DrDYF.github.io
 `图片转Webp`
-```py
+```python
 import os
 from PIL import Image
 
