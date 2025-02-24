@@ -1,6 +1,11 @@
 # DrDYF.github.io
 
-一些有用的代码
+## 一些有用的代码
+* PIL安装
+```bash
+pip install pillow
+```
+
 * 图片转Webp
 ```python
 import os
