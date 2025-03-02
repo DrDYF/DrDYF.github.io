@@ -227,7 +227,7 @@
                     pet.src = 'pets/die.png';
                 }
             }
-        }, 300); // 每3秒减少0.5点（总饥饿时间60秒）
+        }, 3000); // 每3秒减少0.5点（总饥饿时间60秒）
 
         const feed = () => {
             if(currentHunger <= 0) return; // 死亡状态不能喂食
