@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <style>
+        /* 基础样式 */
+        :root {
+            --bar-size: 12px;
+            --bar-gap: 4px;
+        }
+
+        /* 宠物样式 */
+        #pet {
+            position: fixed;
+            width: 120px;
+            height: 120px;
+            touch-action: none;
+            pointer-events: auto;
+            image-rendering: crisp-edges;
+            z-index: 999;
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        /* 状态栏容器 */
+        .status-bar {
+            position: fixed;
+            top: 20px;
+            display: flex;
+            gap: var(--bar-gap);
+            background: rgba(0,0,0,0.5);
+            padding: 8px;
+            border-radius: 3px;
+            z-index: 998;
+        }
+        #hunger-bar { right: 20px; }
+        #health-bar { left: 20px; }
+
+        /* 状态格子 */
+        .bar-item {
+            position: relative;
+            width: var(--bar-size);
+            height: var(--bar-size);
+        }
+        .bar-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+        .bar-state {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.2s;
+            image-rendering: pixelated;
+        }
+        .bar-state.active {
+            opacity: 1;
+        }
+
+        /* 喂食按钮 */
+        #feed-btn {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            padding: 5px 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 99;
+        }
+
+        /* 物品栏样式 */
+        #hotbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            z-index: 998;
+        }
+        .hotbar-item {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            image-rendering: pixelated;
+            cursor: pointer;
+        }
+        .hotbar-item img {
+            width: 100%;
+            height: 100%;
+        }
+        .hotbar-item.selected::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('pets/selected_hotbar_slot.png');
+            background-size: cover;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <img id="pet" src="pets/rs.gif" alt="desktop-pet">
+    <div id="hunger-bar" class="status-bar"></div>
+    <div id="health-bar" class="status-bar"></div>
+    <div id="hotbar"></div>
+    <button id="feed-btn">吃</button>
+    <audio id="hit-sound" src="sounds/hit.ogg"></audio>
+
+    <script>
+        // 配置常量
+        const CONFIG = {
+            PET: {
+                SIZE: 120,
+                MOVE_PROBABILITY: 0.3,
+                MOVE_SPEED: 0.1
+            },
+            HUNGER: {
+                MAX: 10,
+                DECREMENT: 0.5,
+                INTERVAL: 3000,
+                FEED_AMOUNT: 2
+            },
+            HEALTH: {
+                MAX: 10,
+                DECREMENT: 1,
+                BLINK_DURATION: 200
+            }
+        };
+
+        // 宠物系统
+        class PetSystem {
+            constructor() {
+                this.pet = document.getElementById('pet');
+                this.hitSound = document.getElementById('hit-sound');
+                this.currentDirection = 'right';
+                this.isMoving = false;
+                this.isDragging = false;
+                this.pos = this.getInitialPosition();
+                this.targetPos = {...this.pos};
+                
+                this.initEventListeners();
+                this.preloadAssets();
+                this.animate();
+            }
+
+            getInitialPosition() {
+                return {
+                    x: window.innerWidth / 2 - CONFIG.PET.SIZE / 2,
+                    y: window.innerHeight / 2 - CONFIG.PET.SIZE / 2
+                };
+            }
+
+            initEventListeners() {
+                // 触摸事件
+                this.pet.addEventListener('touchstart', (e) => this.startDrag(e.touches[0]));
+                document.addEventListener('touchmove', (e) => this.doDrag(e.touches[0]));
+                document.addEventListener('touchend', () => this.endDrag());
+                
+                // 窗口大小变化
+                window.addEventListener('resize', () => this.handleResize());
+            }
+
+            preloadAssets() {
+                const assets = ['ls', 'rs', 'lr', 'rr'].map(state => 
+                    `pets/${state}.gif`
+                );
+                assets.forEach(src => new Image().src = src);
+            }
+
+            startDrag(touch) {
+                this.isDragging = true;
+                this.touchStartX = touch.clientX;
+                this.touchStartY = touch.clientY;
+                this.isMoving = false;
+                this.pet.style.transition = 'none';
+            }
+
+            doDrag(touch) {
+                if (this.isDragging) {
+                    this.currentDirection = (touch.clientX > this.touchStartX) ? 'right' : 'left';
+                    this.pos.x = touch.clientX - CONFIG.PET.SIZE / 2;
+                    this.pos.y = touch.clientY - CONFIG.PET.SIZE / 2;
+                    this.pos.x = Math.max(0, Math.min(this.pos.x, window.innerWidth - CONFIG.PET.SIZE));
+                    this.pos.y = Math.max(0, Math.min(this.pos.y, window.innerHeight - CONFIG.PET.SIZE));
+                    this.pet.style.left = `${this.pos.x}px`;
+                    this.pet.style.top = `${this.pos.y}px`;
+                    this.touchStartX = touch.clientX;
+                    this.touchStartY = touch.clientY;
+                }
+            }
+
+            endDrag() {
+                if (this.isDragging) {
+                    this.isDragging = false;
+                    this.targetPos = {...this.pos};
+                    this.pet.style.transition = 'all 0.3s';
+                    setTimeout(() => this.isMoving = false, 300);
+                }
+            }
+
+            handleResize() {
+                this.pos.x = Math.min(this.pos.x, window.innerWidth - CONFIG.PET.SIZE);
+                this.pos.y = Math.min(this.pos.y, window.innerHeight - CONFIG.PET.SIZE);
+            }
+
+            setRandomTarget() {
+                if (this.isMoving || this.isDragging || Math.random() >= CONFIG.PET.MOVE_PROBABILITY) return;
+
+                this.targetPos = {
+                    x: this.pos.x + (Math.random() - 0.5) * window.innerWidth * 0.4,
+                    y: this.pos.y + (Math.random() - 0.5) * window.innerHeight * 0.4
+                };
+                this.targetPos.x = Math.max(0, Math.min(this.targetPos.x, window.innerWidth - CONFIG.PET.SIZE));
+                this.targetPos.y = Math.max(0, Math.min(this.targetPos.y, window.innerHeight - CONFIG.PET.SIZE));
+                this.currentDirection = (this.targetPos.x > this.pos.x) ? 'right' : 'left';
+                this.isMoving = true;
+            }
+
+            animate() {
+                if (!this.isDragging) {
+                    const dx = this.targetPos.x - this.pos.x;
+                    const dy = this.targetPos.y - this.pos.y;
+
+                    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+                        this.pos.x += dx * CONFIG.PET.MOVE_SPEED;
+                        this.pos.y += dy * CONFIG.PET.MOVE_SPEED;
+                    } else {
+                        this.isMoving = false;
+                    }
+                }
+
+                this.pet.style.left = `${this.pos.x}px`;
+                this.pet.style.top = `${this.pos.y}px`;
+                this.updateState();
+                requestAnimationFrame(() => this.animate());
+            }
+
+            updateState() {
+                if (this.isDragging) return;
+
+                const newState = this.isMoving ?
+                    (this.currentDirection === 'left' ? 'lr' : 'rr') :
+                    (this.currentDirection === 'left' ? 'ls' : 'rs');
+
+                if (this.pet.src !== `${location.href}pets/${newState}.gif`) {
+                    this.pet.src = `pets/${newState}.gif`;
+                }
+            }
+
+            // 新增：宠物掉血时的红色闪烁效果
+            blinkRed() {
+                this.pet.style.filter = 'brightness(1.5) saturate(2) hue-rotate(0deg)';
+                setTimeout(() => {
+                    this.pet.style.filter = 'none';
+                }, CONFIG.HEALTH.BLINK_DURATION);
+            }
+        }
+
+        // 状态栏系统
+        class StatusBar {
+            constructor(containerId, config) {
+                this.container = document.getElementById(containerId);
+                this.config = config;
+                this.currentValue = config.max;
+                this.init();
+            }
+
+            init() {
+                this.container.innerHTML = '';
+                for (let i = 0; i < this.config.max; i++) {
+                    const item = document.createElement('div');
+                    item.className = 'bar-item';
+                    item.innerHTML = `
+                        <img class="bar-background" src="${this.config.background}">
+                        <img class="bar-state">
+                    `;
+                    this.container.appendChild(item);
+                }
+                this.update();
+            }
+
+            update() {
+                const full = Math.floor(this.currentValue);
+                const hasHalf = this.currentValue % 1 > 0;
+
+                Array.from(this.container.children).forEach((item, index) => {
+                    const stateImg = item.querySelector('.bar-state');
+                    const visualIndex = this.config.reverse ? this.config.max - 1 - index : index;
+
+                    if (visualIndex < full) {
+                        stateImg.src = this.config.full;
+                        stateImg.classList.add('active');
+                    } else if (visualIndex === full && hasHalf) {
+                        stateImg.src = this.config.half;
+                        stateImg.classList.add('active');
+                    } else {
+                        stateImg.classList.remove('active');
+                    }
+                });
+            }
+
+            setValue(value) {
+                this.currentValue = Math.max(0, Math.min(value, this.config.max));
+                this.update();
+            }
+        }
+
+        // 物品栏系统
+        class Hotbar {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.selectedSlot = 0;
+                this.init();
+            }
+
+            init() {
+                for (let i = 0; i < 9; i++) {
+                    const item = document.createElement('div');
+                    item.className = 'hotbar-item';
+                    item.innerHTML = `<img src="pets/hotbar.png">`;
+                    item.addEventListener('click', () => this.selectSlot(i));
+                    this.container.appendChild(item);
+                }
+                this.update();
+            }
+
+            selectSlot(index) {
+                this.selectedSlot = index;
+                this.update();
+            }
+
+            update() {
+                Array.from(this.container.children).forEach((item, index) => {
+                    item.classList.toggle('selected', index === this.selectedSlot);
+                });
+            }
+        }
+
+        // 初始化系统
+        const petSystem = new PetSystem();
+        
+        const hungerBar = new StatusBar('hunger-bar', {
+            max: CONFIG.HUNGER.MAX,
+            background: 'pets/hunger_background.png',
+            full: 'pets/hunger_full.png',
+            half: 'pets/hunger_half.png',
+            reverse: true
+        });
+
+        const healthBar = new StatusBar('health-bar', {
+            max: CONFIG.HEALTH.MAX,
+            background: 'pets/heart_background.png',
+            full: 'pets/heart.png',
+            half: 'pets/heart_half.png',
+            reverse: false
+        });
+
+        const hotbar = new Hotbar('hotbar');
+
+        // 游戏循环
+        setInterval(() => {
+            // 饥饿值处理
+            hungerBar.setValue(hungerBar.currentValue - CONFIG.HUNGER.DECREMENT);
+
+            // 生命值处理
+            if (hungerBar.currentValue <= 0 && healthBar.currentValue > 0) {
+                healthBar.setValue(healthBar.currentValue - CONFIG.HEALTH.DECREMENT);
+                petSystem.hitSound.play();
+                petSystem.blinkRed(); // 触发红色闪烁效果
+                animateHealthBlink();
+            }
+        }, CONFIG.HUNGER.INTERVAL);
+
+        // 喂食功能
+        document.getElementById('feed-btn').addEventListener('click', () => {
+            if (healthBar.currentValue > 0) {
+                hungerBar.setValue(hungerBar.currentValue + CONFIG.HUNGER.FEED_AMOUNT);
+            }
+        });
+
+        // 生命值闪烁动画
+        function animateHealthBlink() {
+            const containers = healthBar.container.children;
+            for (let i = 0; i < containers.length; i++) {
+                const bgImg = containers[i].querySelector('.bar-background');
+                bgImg.src = 'pets/heart_blink.png';
+            }
+            setTimeout(() => {
+                for (let i = 0; i < containers.length; i++) {
+                    const bgImg = containers[i].querySelector('.bar-background');
+                    bgImg.src = 'pets/heart_background.png';
+                }
+            }, CONFIG.HEALTH.BLINK_DURATION);
+        }
+    </script>
+</body>
+</html>
