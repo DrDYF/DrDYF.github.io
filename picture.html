@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动拍照</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f0f0f0;
+        }
+        #video-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            background: black;
+        }
+        #video-preview {
+            width: 100%;
+            height: auto;
+            transform: scaleX(-1); /* 镜像翻转 */
+        }
+        #photo-result {
+            margin-top: 20px;
+        }
+        #photo-result img {
+            max-width: 100%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="video-preview" autoplay playsinline></video>
+    </div>
+    <div id="photo-result"></div>
+
+    <script>
+        const videoElement = document.getElementById('video-preview');
+        let currentStream = null;
+
+        // 自动初始化前置摄像头并拍照
+        async function initAndCapture() {
+            try {
+                // 1. 请求前置摄像头
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',  // 强制前置摄像头
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+                currentStream = stream;
+                videoElement.srcObject = stream;
+
+                // 2. 等待视频数据加载
+                await new Promise((resolve) => {
+                    videoElement.onloadedmetadata = () => {
+                        videoElement.play().then(resolve);
+                    };
+                });
+
+                // 3. 稍等100ms确保画面稳定
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                // 4. 自动拍照
+                capturePhoto();
+
+            } catch (error) {
+                console.error('初始化失败:', error);
+                alert('无法访问前置摄像头，请检查权限！');
+            }
+        }
+
+        // 拍照函数
+        function capturePhoto() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置画布与视频相同尺寸
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            
+            // 绘制镜像图像（前置摄像头需要镜像）
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            
+            // 生成图片
+            const img = new Image();
+            img.src = canvas.toDataURL('image/jpeg', 0.85);
+            img.style.maxWidth = '100%';
+            
+            // 显示结果并关闭摄像头
+            document.getElementById('photo-result').appendChild(img);
+            stopCamera();
+        }
+
+        // 关闭摄像头
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+        }
+
+        // 页面加载后自动执行
+        window.addEventListener('DOMContentLoaded', initAndCapture);
+    </script>
+</body>
+</html>
