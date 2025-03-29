@@ -3,33 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自动拍照</title>
+    <title>自动</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #f0f0f0;
+            min-height: 100vh;
         }
         #video-container {
             width: 100%;
-            max-width: 400px;
-            margin: 20px auto;
-            background: black;
+            max-width: 500px;
+            margin: 20px 0;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
         }
         #video-preview {
             width: 100%;
             height: auto;
-            transform: scaleX(-1); /* 镜像翻转 */
+            transform: scaleX(-1);
+            display: block;
         }
         #photo-result {
-            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+            text-align: center;
         }
         #photo-result img {
             max-width: 100%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -41,47 +49,50 @@
 
     <script>
         const videoElement = document.getElementById('video-preview');
+        const photoResult = document.getElementById('photo-result');
         let currentStream = null;
 
-        // 自动初始化前置摄像头并拍照
-        async function initAndCapture() {
+        async function initCamera() {
             try {
-                // 1. 请求前置摄像头
-                const stream = await navigator.mediaDevices.getUserMedia({
+                // 请求麦克风权限并立即释放
+                const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                micStream.getTracks().forEach(track => track.stop());
+                
+                // 请求摄像头权限
+                const camStream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: 'user',  // 强制前置摄像头
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
                     }
                 });
-                currentStream = stream;
-                videoElement.srcObject = stream;
 
-                // 2. 等待视频数据加载
-                await new Promise((resolve) => {
+                currentStream = camStream;
+                videoElement.srcObject = camStream;
+
+                await new Promise(resolve => {
                     videoElement.onloadedmetadata = () => {
                         videoElement.play().then(resolve);
                     };
                 });
 
-                // 3. 稍等100ms确保画面稳定
+                // 等待500ms确保画面稳定
                 await new Promise(resolve => setTimeout(resolve, 100));
-
-                // 4. 自动拍照
+                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // 执行拍照
                 capturePhoto();
-
             } catch (error) {
-                console.error('初始化失败:', error);
-                alert('无法访问前置摄像头，请检查权限！');
+                console.error('Error:', error);
             }
         }
 
-        // 拍照函数
         function capturePhoto() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 设置画布与视频相同尺寸
+            // 设置画布尺寸与视频相同
             canvas.width = videoElement.videoWidth;
             canvas.height = videoElement.videoHeight;
             
@@ -90,17 +101,16 @@
             ctx.scale(-1, 1);
             ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
             
-            // 生成图片
+            // 生成图片并显示
             const img = new Image();
-            img.src = canvas.toDataURL('image/jpeg', 0.85);
-            img.style.maxWidth = '100%';
-            
-            // 显示结果并关闭摄像头
-            document.getElementById('photo-result').appendChild(img);
-            stopCamera();
+            img.src = canvas.toDataURL('image/jpeg', 0.9);
+            img.onload = () => {
+                photoResult.innerHTML = '';
+                photoResult.appendChild(img);
+                stopCamera();
+            };
         }
 
-        // 关闭摄像头
         function stopCamera() {
             if (currentStream) {
                 currentStream.getTracks().forEach(track => track.stop());
@@ -109,7 +119,7 @@
         }
 
         // 页面加载后自动执行
-        window.addEventListener('DOMContentLoaded', initAndCapture);
+        window.addEventListener('DOMContentLoaded', initCamera);
     </script>
 </body>
 </html>
