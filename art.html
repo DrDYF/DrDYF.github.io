@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>凡布尔的图片生成</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            background-color: #11DDF6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #3BEDCC;
+        }
+        #imageContainer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #generatedImage {
+            max-width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ART</h1>
+        <p>输入英文提示词描述你想要生成的图片，用English，孩子</p>
+        
+        <textarea id="promptInput" placeholder="输入英文单词✓"></textarea>
+        
+        <button id="generateBtn">生成图片</button>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <p>正在生成图片，请稍候...</p>
+        </div>
+        
+        <div id="imageContainer">
+            <!-- 生成的图片将显示在这里 -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const promptInput = document.getElementById('promptInput').value.trim();
+            
+            if (!promptInput) {
+                alert('请输入提示词！');
+                return;
+            }
+            
+            // 显示加载指示器
+            document.getElementById('loadingIndicator').style.display = 'block';
+            
+            // 清理提示词：替换空格为%20，移除特殊字符
+            const cleanedPrompt = encodeURIComponent(promptInput);
+            
+            // 构建图片URL
+            const imageUrl = `https://image.pollinations.ai/prompt/${cleanedPrompt}?width=1280&height=1024&seed=${Math.floor(Math.random()*10000)}&model=flux&nologo=true`;
+            
+            // 创建图片元素
+            const img = new Image();
+            img.id = 'generatedImage';
+            img.alt = 'Generated image based on: ' + promptInput;
+            
+            // 图片加载完成时
+            img.onload = function() {
+                // 隐藏加载指示器
+                document.getElementById('loadingIndicator').style.display = 'none';
+                
+                // 清空容器并添加新图片
+                const container = document.getElementById('imageContainer');
+                container.innerHTML = '';
+                container.appendChild(img);
+                
+                // 添加提示词说明
+                const promptText = document.createElement('p');
+                promptText.textContent = '提示词: ' + promptInput;
+                container.appendChild(promptText);
+            };
+            
+            // 图片加载错误时
+            img.onerror = function() {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                alert('图片生成失败，请尝试不同的提示词。');
+            };
+            
+            // 开始加载图片
+            img.src = imageUrl;
+        });
+    </script>
+</body>
+</html>
