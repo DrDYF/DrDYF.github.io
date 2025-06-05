@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词记忆卡片 - 优化版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        header {
+            background: linear-gradient(90deg, #4A00E0, #8E2DE2);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .tabs {
+            display: flex;
+            background: linear-gradient(90deg, #4A00E0, #8E2DE2);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 1.15rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #4A00E0;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+            min-height: 400px;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 学习界面样式 */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            border-radius: 50px;
+            padding: 5px;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background: #4A00E0;
+            color: white;
+            box-shadow: 0 4px 10px rgba(74, 0, 224, 0.3);
+        }
+        
+        .question-container {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px dashed #e0e0e0;
+        }
+        
+        .question {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            max-width: 100%;
+            word-wrap: break-word;
+            padding: 10px;
+            line-height: 1.4;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.5rem;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: all 0.3s;
+            background: #fff;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .answer-input:focus {
+            border-color: #4A00E0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.2);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(90deg, #4A00E0, #8E2DE2);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            font-size: 1.3rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 0, 224, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .submit-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(30deg);
+            transition: all 0.6s;
+        }
+        
+        .submit-btn:hover::after {
+            transform: rotate(30deg) translate(20%, 20%);
+        }
+        
+        .result {
+            font-size: 1.4rem;
+            min-height: 40px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.4s;
+        }
+        
+        .correct {
+            color: #27ae60;
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        
+        .remaining {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-weight: 500;
+            margin-top: 15px;
+        }
+        
+        /* 添加单词界面样式 */
+        .word-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+        
+        label i {
+            margin-right: 10px;
+            color: #4A00E0;
+        }
+        
+        input {
+            padding: 16px;
+            font-size: 1.15rem;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        input:focus {
+            border-color: #4A00E0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.2);
+        }
+        
+        .add-btn {
+            background: linear-gradient(90deg, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 1.25rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 176, 155, 0.3);
+            margin-top: 10px;
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 176, 155, 0.4);
+        }
+        
+        /* 单词列表样式 */
+        .word-list-container {
+            max-height: 450px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            padding: 5px;
+            background: #fff;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.03);
+        }
+        
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .word-item:hover {
+            background: #f9f7ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        
+        .word-item:last-child {
+            border-bottom: none;
+        }
+        
+        .word-text {
+            font-size: 1.15rem;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .english {
+            font-weight: bold;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        
+        .chinese {
+            color: #7f8c8d;
+            display: block;
+            word-break: break-word;
+        }
+        
+        .delete-btn {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            margin-left: 15px;
+            flex-shrink: 0;
+            box-shadow: 0 3px 8px rgba(255, 65, 108, 0.2);
+        }
+        
+        .delete-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 12px rgba(255, 65, 108, 0.3);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(90deg, #ff9a00, #ff6a00);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 1.15rem;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(255, 154, 0, 0.3);
+            width: 100%;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 154, 0, 0.4);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 30px;
+            color: #7f8c8d;
+            background: #f9f9f9;
+            border-radius: 15px;
+            border: 2px dashed #e0e0e0;
+        }
+        
+        .empty-icon {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            color: #d0d0d0;
+        }
+        
+        .empty-state p {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+        }
+        
+        .info-text {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 15px;
+            font-size: 1rem;
+            padding: 0 10px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            header {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tab-btn {
+                padding: 14px;
+                font-size: 1rem;
+            }
+            
+            .question {
+                font-size: 1.8rem;
+            }
+            
+            .answer-input {
+                font-size: 1.3rem;
+                padding: 15px;
+            }
+            
+            .submit-btn, .add-btn, .reset-btn {
+                padding: 16px;
+                font-size: 1.2rem;
+            }
+            
+            .word-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+            }
+            
+            .delete-btn {
+                margin-top: 15px;
+                align-self: flex-end;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .question {
+                font-size: 1.6rem;
+            }
+            
+            .answer-input {
+                font-size: 1.2rem;
+            }
+            
+            .result {
+                font-size: 1.2rem;
+            }
+        }
+        
+        .hint {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        .mode-hint {
+            background: #e8f4fc;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #4A00E0;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-book-open"></i> 单词记忆卡片</h1>
+            <div class="subtitle">自定义单词库 • 中英文互考 • 智能记忆</div>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="learn">
+                <i class="fas fa-brain"></i> 学习模式
+            </button>
+            <button class="tab-btn" data-tab="add">
+                <i class="fas fa-plus-circle"></i> 添加单词
+            </button>
+            <button class="tab-btn" data-tab="list">
+                <i class="fas fa-list"></i> 单词列表
+            </button>
+        </div>
+        
+        <!-- 学习模式 -->
+        <div id="learn" class="tab-content active">
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="mode-en">英文 → 中文</button>
+                <button class="mode-btn" id="mode-cn">中文 → 英文</button>
+                <button class="mode-btn" id="mode-random">随机模式</button>
+            </div>
+            
+            <div class="mode-hint">
+                <i class="fas fa-info-circle"></i> 提示：单词有多个含义时，用分号(;)分隔，答对其中任意一个即可
+            </div>
+            
+            <div class="card">
+                <div class="question-container">
+                    <div class="question" id="question">加载中...</div>
+                </div>
+                <input type="text" class="answer-input" id="answer" placeholder="请输入答案..." autocomplete="off">
+                <button class="submit-btn" id="submit">
+                    <i class="fas fa-paper-plane"></i> 提交答案
+                </button>
+                <div class="result" id="result"></div>
+                <div class="remaining" id="remaining">剩余单词: 0</div>
+                <div class="hint">按Enter键快速提交</div>
+            </div>
+        </div>
+        
+        <!-- 添加单词 -->
+        <div id="add" class="tab-content">
+            <div class="word-form">
+                <div class="form-group">
+                    <label for="english"><i class="fas fa-font"></i> 英文单词/短语</label>
+                    <input type="text" id="english" placeholder="例如：for good/permanently/timelessly">
+                </div>
+                
+                <div class="form-group">
+                    <label for="chinese"><i class="fas fa-language"></i> 中文翻译</label>
+                    <input type="text" id="chinese" placeholder="例如：永远；永久地；长期地">
+                    <div class="hint">多个含义请用分号(;)分隔</div>
+                </div>
+                
+                <button class="add-btn" id="add-word">
+                    <i class="fas fa-plus"></i> 添加到单词库
+                </button>
+            </div>
+        </div>
+        
+        <!-- 单词列表 -->
+        <div id="list" class="tab-content">
+            <div class="word-list-container" id="word-list">
+                <!-- 单词列表将在这里动态生成 -->
+            </div>
+            <button class="reset-btn" id="reset">
+                <i class="fas fa-sync-alt"></i> 重置学习进度
+            </button>
+            <div class="info-text">提示：删除单词后，其学习记录也会被删除</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const questionEl = document.getElementById('question');
+            const answerInput = document.getElementById('answer');
+            const submitBtn = document.getElementById('submit');
+            const resultEl = document.getElementById('result');
+            const remainingEl = document.getElementById('remaining');
+            const englishInput = document.getElementById('english');
+            const chineseInput = document.getElementById('chinese');
+            const addWordBtn = document.getElementById('add-word');
+            const wordListEl = document.getElementById('word-list');
+            const resetBtn = document.getElementById('reset');
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            
+            // 初始化单词库和已学单词
+            let words = JSON.parse(localStorage.getItem('wordList')) || [];
+            let usedWords = JSON.parse(localStorage.getItem('usedWords')) || [];
+            let currentWord = null;
+            let currentMode = 'en'; // 默认英文→中文模式
+            
+            // 标签切换功能
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 移除所有活动标签
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // 添加活动类到当前标签
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tab).classList.add('active');
+                });
+            });
+            
+            // 模式切换功能
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMode = this.id.replace('mode-', '');
+                    generateQuestion();
+                });
+            });
+            
+            // 提交答案
+            submitBtn.addEventListener('click', checkAnswer);
+            answerInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkAnswer();
+            });
+            
+            // 添加单词
+            addWordBtn.addEventListener('click', addWord);
+            
+            // 重置学习进度
+            resetBtn.addEventListener('click', resetProgress);
+            
+            // 初始化应用
+            updateWordListDisplay();
+            generateQuestion();
+            
+            // 检查答案函数
+            function checkAnswer() {
+                const userAnswer = answerInput.value.trim();
+                if (!userAnswer || !currentWord) return;
+                
+                let isCorrect = false;
+                let correctAnswers = [];
+                
+                if (currentMode === 'en') {
+                    // 英文→中文模式：检查中文答案
+                    correctAnswers = currentWord.chinese.split(';').map(a => a.trim());
+                    isCorrect = correctAnswers.some(a => a.toLowerCase() === userAnswer.toLowerCase());
+                } else {
+                    // 中文→英文模式：检查英文答案
+                    // 英文可能有多个同义词，用斜杠分隔
+                    const synonyms = currentWord.english.split('/').map(s => s.trim());
+                    isCorrect = synonyms.some(s => s.toLowerCase() === userAnswer.toLowerCase());
+                    
+                    // 如果没有匹配，尝试匹配分号分隔的答案
+                    if (!isCorrect) {
+                        correctAnswers = currentWord.english.split(';').map(a => a.trim());
+                        isCorrect = correctAnswers.some(a => a.toLowerCase() === userAnswer.toLowerCase());
+                    }
+                }
+                
+                if (isCorrect) {
+                    resultEl.textContent = `✓ 正确！答案: ${currentMode === 'en' ? currentWord.chinese : currentWord.english}`;
+                    resultEl.className = 'result correct';
+                    
+                    // 将当前单词标记为已使用
+                    if (!usedWords.includes(currentWord.id)) {
+                        usedWords.push(currentWord.id);
+                        localStorage.setItem('usedWords', JSON.stringify(usedWords));
+                    }
+                    
+                    // 清空输入框并生成新问题
+                    answerInput.value = '';
+                    setTimeout(() => {
+                        resultEl.textContent = '';
+                        resultEl.className = 'result';
+                        generateQuestion();
+                    }, 2000);
+                } else {
+                    resultEl.textContent = `✗ 错误！正确答案: ${currentMode === 'en' ? currentWord.chinese : currentWord.english}`;
+                    resultEl.className = 'result incorrect';
+                }
+            }
+            
+            // 生成问题
+            function generateQuestion() {
+                // 获取未使用的单词
+                const unusedWords = words.filter(word => !usedWords.includes(word.id));
+                
+                if (unusedWords.length > 0) {
+                    // 随机选择一个单词
+                    currentWord = unusedWords[Math.floor(Math.random() * unusedWords.length)];
+                    
+                    // 根据模式显示问题
+                    if (currentMode === 'en') {
+                        questionEl.textContent = currentWord.english;
+                        answerInput.placeholder = "请输入中文翻译...";
+                    } else if (currentMode === 'cn') {
+                        questionEl.textContent = currentWord.chinese;
+                        answerInput.placeholder = "请输入英文单词...";
+                    } else {
+                        // 随机模式
+                        const randomMode = Math.random() > 0.5 ? 'en' : 'cn';
+                        if (randomMode === 'en') {
+                            questionEl.textContent = currentWord.english;
+                            answerInput.placeholder = "请输入中文翻译...";
+                        } else {
+                            questionEl.textContent = currentWord.chinese;
+                            answerInput.placeholder = "请输入英文单词...";
+                        }
+                    }
+                    
+                    remainingEl.textContent = `剩余单词: ${unusedWords.length}`;
+                    answerInput.disabled = false;
+                    submitBtn.disabled = false;
+                } else {
+                    questionEl.textContent = "🎉 太棒了！所有单词都学完了！";
+                    answerInput.value = '';
+                    answerInput.disabled = true;
+                    submitBtn.disabled = true;
+                    remainingEl.textContent = "剩余单词: 0";
+                    currentWord = null;
+                }
+                
+                // 聚焦到输入框
+                answerInput.focus();
+            }
+            
+            // 添加单词
+            function addWord() {
+                const english = englishInput.value.trim();
+                const chinese = chineseInput.value.trim();
+                
+                if (!english || !chinese) {
+                    alert('请填写英文和中文内容');
+                    return;
+                }
+                
+                // 生成唯一ID
+                const id = 'word_' + Date.now();
+                
+                // 添加到单词库
+                words.push({ id, english, chinese });
+                localStorage.setItem('wordList', JSON.stringify(words));
+                
+                // 清空输入框
+                englishInput.value = '';
+                chineseInput.value = '';
+                
+                // 更新显示
+                updateWordListDisplay();
+                
+                // 如果当前没有单词，生成一个新问题
+                if (words.length > 0 && !currentWord) {
+                    generateQuestion();
+                }
+                
+                // 显示成功消息
+                resultEl.textContent = "✓ 单词添加成功！";
+                resultEl.className = 'result correct';
+                setTimeout(() => {
+                    resultEl.textContent = '';
+                    resultEl.className = 'result';
+                }, 2000);
+            }
+            
+            // 更新单词列表显示
+            function updateWordListDisplay() {
+                if (words.length === 0) {
+                    wordListEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="far fa-folder-open"></i></div>
+                            <p>单词库是空的，请添加一些单词</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                wordListEl.innerHTML = '';
+                words.forEach((word, index) => {
+                    const wordItem = document.createElement('div');
+                    wordItem.className = 'word-item';
+                    wordItem.innerHTML = `
+                        <div class="word-text">
+                            <span class="english">${word.english}</span>
+                            <span class="chinese">${word.chinese}</span>
+                        </div>
+                        <button class="delete-btn" data-id="${word.id}">
+                            <i class="fas fa-trash-alt"></i> 删除
+                        </button>
+                    `;
+                    wordListEl.appendChild(wordItem);
+                });
+                
+                // 添加删除事件监听
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        deleteWord(id);
+                    });
+                });
+            }
+            
+            // 删除单词
+            function deleteWord(id) {
+                if (confirm('确定要删除这个单词吗？')) {
+                    // 从单词库中删除
+                    words = words.filter(word => word.id !== id);
+                    localStorage.setItem('wordList', JSON.stringify(words));
+                    
+                    // 从已使用单词中删除
+                    usedWords = usedWords.filter(wordId => wordId !== id);
+                    localStorage.setItem('usedWords', JSON.stringify(usedWords));
+                    
+                    // 更新显示
+                    updateWordListDisplay();
+                    
+                    // 如果删除的是当前单词，生成新问题
+                    if (currentWord && currentWord.id === id) {
+                        generateQuestion();
+                    }
+                }
+            }
+            
+            // 重置学习进度
+            function resetProgress() {
+                if (confirm('确定要重置学习进度吗？所有单词将重新开始学习。')) {
+                    usedWords = [];
+                    localStorage.setItem('usedWords', JSON.stringify(usedWords));
+                    answerInput.disabled = false;
+                    submitBtn.disabled = false;
+                    generateQuestion();
+                    
+                    // 显示成功消息
+                    resultEl.textContent = "✓ 学习进度已重置！";
+                    resultEl.className = 'result correct';
+                    setTimeout(() => {
+                        resultEl.textContent = '';
+                        resultEl.className = 'result';
+                    }, 2000);
+                }
+            }
+            
+            // 初始化示例数据（如果本地存储为空）
+            if (words.length === 0) {
+                words = [
+                    { id: 'word_1', english: "for good/permanently/timelessly", chinese: "永远；永久地" },
+                    { id: 'word_2', english: "accomplishment", chinese: "成就；完成；成绩" },
+                    { id: 'word_3', english: "benevolent", chinese: "仁慈的；慈善的；乐善好施的" },
+                    { id: 'word_4', english: "conscientious", chinese: "尽责的；勤勤恳恳的；一丝不苟的" },
+                    { id: 'word_5', english: "diligent", chinese: "勤奋的；用功的；刻苦的" }
+                ];
+                localStorage.setItem('wordList', JSON.stringify(words));
+                updateWordListDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
