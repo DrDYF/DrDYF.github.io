@@ -616,6 +616,7 @@
             const bingo = new Audio('sounds/bingo.ogg');
             const wrong = new Audio('sounds/false.ogg');
             const levelup = new Audio('sounds/levelup.ogg');
+            const restart = new Audio('sounds/restart.ogg');
             const click2 = new Audio('sounds/click2.mp3');
             
             // 初始化单词库和已学单词
@@ -857,6 +858,7 @@
                     generateQuestion();
                     
                     // 显示成功消息
+                    restart.play();
                     resultEl.textContent = "✓ 学习进度已重置！";
                     resultEl.className = 'result correct';
                     setTimeout(() => {
