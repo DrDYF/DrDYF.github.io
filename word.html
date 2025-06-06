@@ -686,7 +686,7 @@
                 
                 if (isCorrect) {
                     bingo.play();
-                    resultEl.textContent = `✓ 正确！`;
+                    resultEl.textContent = `✓ 正确！完整答案: ${currentMode === 'en' ? currentWord.chinese : currentWord.english}`;
                     resultEl.className = 'result correct';
                     
                     // 将当前单词标记为已使用
