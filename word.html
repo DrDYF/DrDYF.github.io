@@ -547,16 +547,16 @@
                 <div class="mode-icon">
                     <i class="fas fa-random"></i>
                 </div>
-                <div>红英模式：系统会随机显示英文或中文</div>
+                <div>長弓虹音模式：随机显示中英文</div>
             </div>
             
             <div class="card">
                 <div class="question-container">
-                    <div class="question" id="question">加载中...</div>
+                    <div class="question" id="question">加载ing...</div>
                 </div>
-                <input type="text" class="answer-input" id="answer" placeholder="请输入答案..." autocomplete="off">
+                <input type="text" class="answer-input" id="answer" placeholder="输入答案吧..." autocomplete="off">
                 <button class="submit-btn" id="submit">
-                    <i class="fas fa-paper-plane"></i> 提交答案
+                    <i class="fas fa-paper-plane"></i> 提交
                 </button>
                 <div class="result" id="result"></div>
                 <div class="remaining" id="remaining">剩余单词: 0</div>
@@ -575,7 +575,7 @@
                 <div class="form-group">
                     <label for="chinese"><i class="fas fa-language"></i> 中文翻译</label>
                     <input type="text" id="chinese" placeholder="例如：永远/永久地/长期地">
-                    <div class="hint">多个含义请用斜杠“/”分隔</div>
+                    <div class="hint">多个含义用斜杠“/”分隔</div>
                 </div>
                 
                 <button class="add-btn" id="add-word">
@@ -616,6 +616,7 @@
             const bingo = new Audio('sounds/bingo.ogg');
             const wrong = new Audio('sounds/false.ogg');
             const levelup = new Audio('sounds/levelup.ogg');
+            const click2 = new Audio('sounds/click2.ogg');
             
             // 初始化单词库和已学单词
             let words = JSON.parse(localStorage.getItem('wordList')) || [];
@@ -626,6 +627,7 @@
             // 标签切换功能
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    click2.play();
                     // 移除所有活动标签
                     tabBtns.forEach(b => b.classList.remove('active'));
                     tabContents.forEach(c => c.classList.remove('active'));
@@ -778,6 +780,7 @@
                 }
                 
                 // 显示成功消息
+                bingo.play();
                 resultEl.textContent = "✓ 单词添加成功！";
                 resultEl.className = 'result correct';
                 setTimeout(() => {
