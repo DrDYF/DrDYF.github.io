@@ -598,289 +598,277 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 获取DOM元素
-            const tabBtns = document.querySelectorAll('.tab-btn');
-            const tabContents = document.querySelectorAll('.tab-content');
-            const questionEl = document.getElementById('question');
-            const answerInput = document.getElementById('answer');
-            const submitBtn = document.getElementById('submit');
-            const resultEl = document.getElementById('result');
-            const remainingEl = document.getElementById('remaining');
-            const englishInput = document.getElementById('english');
-            const chineseInput = document.getElementById('chinese');
-            const addWordBtn = document.getElementById('add-word');
-            const wordListEl = document.getElementById('word-list');
-            const resetBtn = document.getElementById('reset');
+    // 缓存DOM元素（减少重复查询）
+    const elements = {
+        tabBtns: document.querySelectorAll('.tab-btn'),
+        tabContents: document.querySelectorAll('.tab-content'),
+        questionEl: document.getElementById('question'),
+        answerInput: document.getElementById('answer'),
+        submitBtn: document.getElementById('submit'),
+        resultEl: document.getElementById('result'),
+        remainingEl: document.getElementById('remaining'),
+        englishInput: document.getElementById('english'),
+        chineseInput: document.getElementById('chinese'),
+        addWordBtn: document.getElementById('add-word'),
+        wordListEl: document.getElementById('word-list'),
+        resetBtn: document.getElementById('reset')
+    };
+
+    // 音频预加载（使用Map存储）
+    const sounds = new Map([
+        ['bingo', new Audio('sounds/bingo.ogg')],
+        ['wrong', new Audio('sounds/false.ogg')],
+        ['levelup', new Audio('sounds/levelup.ogg')],
+        ['restart', new Audio('sounds/restart.ogg')],
+        ['click2', new Audio('sounds/click2.mp3')]
+    ]);
+    
+    // 优化数据结构
+    const state = {
+        words: JSON.parse(localStorage.getItem('wordList')) || [],
+        usedWords: new Set(JSON.parse(localStorage.getItem('usedWords')) || []),
+        currentWord: null,
+        currentMode: null
+    };
+    
+    // 事件委托处理标签切换
+    document.querySelector('.tabs').addEventListener('click', function(e) {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        
+        sounds.get('click2').play();
+        
+        // 优化类名切换
+        elements.tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+        elements.tabContents.forEach(c => 
+            c.classList.toggle('active', c.id === btn.dataset.tab)
+        );
+        
+        if (btn.dataset.tab === 'learn') {
+            generateQuestion();
+        }
+    });
+    
+    // 提交答案（复用事件处理）
+    const checkAnswer = () => {
+        const userAnswer = elements.answerInput.value.trim();
+        if (!userAnswer || !state.currentWord) return;
+        
+        let isCorrect = false;
+        const correctAnswers = state.currentMode === 'en' 
+            ? state.currentWord.chinese.split('/').map(a => a.trim())
+            : state.currentWord.english.split('/').map(s => s.trim());
+        
+        isCorrect = correctAnswers.some(correct => 
+            correct.toLowerCase() === userAnswer.toLowerCase()
+        );
+        
+        if (isCorrect) {
+            sounds.get('bingo').play();
+            elements.resultEl.textContent = `✓ 正确！完整答案: ${state.currentMode === 'en' 
+                ? state.currentWord.chinese : state.currentWord.english}`;
+            elements.resultEl.className = 'result correct';
             
-            //音频加载
-            const bingo = new Audio('sounds/bingo.ogg');
-            const wrong = new Audio('sounds/false.ogg');
-            const levelup = new Audio('sounds/levelup.ogg');
-            const restart = new Audio('sounds/restart.ogg');
-            const click2 = new Audio('sounds/click2.mp3');
+            // 使用Set提高性能
+            if (!state.usedWords.has(state.currentWord.id)) {
+                state.usedWords.add(state.currentWord.id);
+                localStorage.setItem('usedWords', JSON.stringify([...state.usedWords]));
+            }
             
-            // 初始化单词库和已学单词
-            let words = JSON.parse(localStorage.getItem('wordList')) || [];
-            let usedWords = JSON.parse(localStorage.getItem('usedWords')) || [];
-            let currentWord = null;
-            let currentMode = null; // 当前显示模式：'en' 或 'cn'
-            
-            // 标签切换功能
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    click2.play();
-                    // 移除所有活动标签
-                    tabBtns.forEach(b => b.classList.remove('active'));
-                    tabContents.forEach(c => c.classList.remove('active'));
-                    
-                    // 添加活动类到当前标签
-                    btn.classList.add('active');
-                    document.getElementById(btn.dataset.tab).classList.add('active');
-                    
-                    // 如果切换到学习模式，生成新问题
-                    if (btn.dataset.tab === 'learn') {
-                        generateQuestion();
-                    }
-                });
-            });
-            
-            // 提交答案
-            submitBtn.addEventListener('click', checkAnswer);
-            answerInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') checkAnswer();
-            });
-            // 添加单词
-            addWordBtn.addEventListener('click', addWord);
-            
-            // 重置学习进度
-            resetBtn.addEventListener('click', resetProgress);
-            
-            // 初始化应用
-            updateWordListDisplay();
+            // 清空输入框并生成新问题
+            elements.answerInput.value = '';
+            setTimeout(() => {
+                elements.resultEl.textContent = '';
+                elements.resultEl.className = 'result';
+                generateQuestion();
+            }, 1500);
+        } else {
+            sounds.get('wrong').play();
+            elements.resultEl.textContent = `✗ 错误！正确答案: ${state.currentMode === 'en' 
+                ? state.currentWord.chinese : state.currentWord.english}`;
+            elements.resultEl.className = 'result incorrect';
+        }
+    };
+    
+    elements.submitBtn.addEventListener('click', checkAnswer);
+    elements.answerInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkAnswer();
+    });
+    
+    // 添加单词
+    elements.addWordBtn.addEventListener('click', () => {
+        const english = elements.englishInput.value.trim();
+        const chinese = elements.chineseInput.value.trim();
+        
+        if (!english || !chinese) {
+            alert('请填写英文和中文内容');
+            return;
+        }
+        
+        // 添加到单词库
+        const newWord = {
+            id: 'word_' + Date.now(),
+            english,
+            chinese
+        };
+        
+        state.words.push(newWord);
+        localStorage.setItem('wordList', JSON.stringify(state.words));
+        
+        // 清空输入框
+        elements.englishInput.value = '';
+        elements.chineseInput.value = '';
+        
+        updateWordListDisplay();
+        
+        // 如果当前没有单词，生成新问题
+        if (state.words.length > 0 && !state.currentWord) {
+            generateQuestion();
+        }
+        
+        // 显示成功消息
+        sounds.get('bingo').play();
+        elements.resultEl.textContent = "✓ 单词添加成功！";
+        elements.resultEl.className = 'result correct';
+        setTimeout(() => {
+            elements.resultEl.textContent = '';
+            elements.resultEl.className = 'result';
+        }, 2000);
+    });
+    
+    // 重置学习进度
+    elements.resetBtn.addEventListener('click', () => {
+        if (confirm('确定要重置学习进度吗？所有单词将重新开始学习。')) {
+            state.usedWords.clear();
+            localStorage.setItem('usedWords', JSON.stringify([]));
+            elements.answerInput.disabled = false;
+            elements.submitBtn.disabled = false;
             generateQuestion();
             
-            // 检查答案函数
-            function checkAnswer() {
-                const userAnswer = answerInput.value.trim();
-                if (!userAnswer || !currentWord) return;
-                
-                let isCorrect = false;
-                let correctAnswers = [];
-                
-                if (currentMode === 'en') {
-                    // 显示英文，要求输入中文
-                    // 获取所有中文答案（分号分隔）
-                    correctAnswers = currentWord.chinese.split('/').map(a => a.trim());
-                    
-                    // 检查用户答案是否匹配任何一个正确答案
-                    isCorrect = correctAnswers.some(correct => 
-                        correct.toLowerCase() === userAnswer.toLowerCase()
-                    );
-                } else {
-                    // 显示中文，要求输入英文
-                    // 获取所有英文答案（斜杠分隔）
-                    const synonyms = currentWord.english.split('/').map(s => s.trim());
-                    
-                    // 检查用户答案是否匹配任何一个同义词
-                    isCorrect = synonyms.some(synonym => 
-                        synonym.toLowerCase() === userAnswer.toLowerCase()
-                    );
-                }
-                
-                if (isCorrect) {
-                    bingo.play();
-                    resultEl.textContent = `✓ 正确！完整答案: ${currentMode === 'en' ? currentWord.chinese : currentWord.english}`;
-                    resultEl.className = 'result correct';
-                    
-                    // 将当前单词标记为已使用
-                    if (!usedWords.includes(currentWord.id)) {
-                        usedWords.push(currentWord.id);
-                        localStorage.setItem('usedWords', JSON.stringify(usedWords));
-                    }
-                    
-                    // 清空输入框并生成新问题
-                    answerInput.value = '';
-                    setTimeout(() => {
-                        resultEl.textContent = '';
-                        resultEl.className = 'result';
-                        generateQuestion();
-                    }, 1500);
-                } else {
-                    wrong.play();
-                    resultEl.textContent = `✗ 错误！正确答案: ${currentMode === 'en' ? currentWord.chinese : currentWord.english}`;
-                    resultEl.className = 'result incorrect';
-                }
+            sounds.get('restart').play();
+            elements.resultEl.textContent = "✓ 学习进度已重置！";
+            elements.resultEl.className = 'result correct';
+            setTimeout(() => {
+                elements.resultEl.textContent = '';
+                elements.resultEl.className = 'result';
+            }, 2000);
+        }
+    });
+    
+    // 初始化应用
+    updateWordListDisplay();
+    generateQuestion();
+    
+    // 生成问题（优化未使用单词筛选）
+    function generateQuestion() {
+        // 使用Set提高查找效率
+        const unusedWords = state.words.filter(word => 
+            !state.usedWords.has(word.id)
+        );
+        
+        if (unusedWords.length > 0) {
+            // 随机选择
+            state.currentWord = unusedWords[
+                Math.floor(Math.random() * unusedWords.length)
+            ];
+            
+            // 随机决定显示模式
+            state.currentMode = Math.random() > 0.5 ? 'en' : 'cn';
+            
+            if (state.currentMode === 'en') {
+                elements.questionEl.textContent = state.currentWord.english;
+                elements.answerInput.placeholder = "请输入中文翻译...";
+            } else {
+                elements.questionEl.textContent = state.currentWord.chinese;
+                elements.answerInput.placeholder = "请输入英文单词...";
             }
             
-            // 生成问题（随机模式）
-            function generateQuestion() {
-                // 获取未使用的单词
-                const unusedWords = words.filter(word => !usedWords.includes(word.id));
-                
-                if (unusedWords.length > 0) {
-                    // 随机选择一个单词
-                    currentWord = unusedWords[Math.floor(Math.random() * unusedWords.length)];
-                    
-                    // 随机决定显示英文还是中文
-                    currentMode = Math.random() > 0.5 ? 'en' : 'cn';
-                    
-                    if (currentMode === 'en') {
-                        // 显示英文
-                        questionEl.textContent = currentWord.english;
-                        answerInput.placeholder = "请输入中文翻译...";
-                    } else {
-                        // 显示中文
-                        questionEl.textContent = currentWord.chinese;
-                        answerInput.placeholder = "请输入英文单词...";
-                    }
-                    
-                    remainingEl.textContent = `剩余单词: ${unusedWords.length}`;
-                    answerInput.disabled = false;
-                    submitBtn.disabled = false;
-                } else {
-                    levelup.play();
-                    questionEl.textContent = "🎉 太棒啦！所有单词都学完了！";
-                    answerInput.value = '';
-                    answerInput.disabled = true;
-                    submitBtn.disabled = true;
-                    remainingEl.textContent = "剩余单词: 0";
-                    currentWord = null;
-                }
-                
-                // 聚焦到输入框
-                answerInput.focus();
-            }
-            
-            // 添加单词
-            function addWord() {
-                const english = englishInput.value.trim();
-                const chinese = chineseInput.value.trim();
-                
-                if (!english || !chinese) {
-                    alert('请填写英文和中文内容');
-                    return;
-                }
-                
-                // 生成唯一ID
-                const id = 'word_' + Date.now();
-                
-                // 添加到单词库
-                words.push({ id, english, chinese });
-                localStorage.setItem('wordList', JSON.stringify(words));
-                
-                // 清空输入框
-                englishInput.value = '';
-                chineseInput.value = '';
-                
-                // 更新显示
-                updateWordListDisplay();
-                
-                // 如果当前没有单词，生成一个新问题
-                if (words.length > 0 && !currentWord) {
-                    generateQuestion();
-                }
-                
-                // 显示成功消息
-                bingo.play();
-                resultEl.textContent = "✓ 单词添加成功！";
-                resultEl.className = 'result correct';
-                setTimeout(() => {
-                    resultEl.textContent = '';
-                    resultEl.className = 'result';
-                }, 2000);
-            }
-            
-            // 更新单词列表显示
-            function updateWordListDisplay() {
-                if (words.length === 0) {
-                    wordListEl.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-icon"><i class="far fa-folder-open"></i></div>
-                            <p>单词库是空的呢，添加一些单词吧</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                wordListEl.innerHTML = '';
-                words.forEach((word, index) => {
-                    const wordItem = document.createElement('div');
-                    wordItem.className = 'word-item';
-                    wordItem.innerHTML = `
-                        <div class="word-text">
-                            <span class="english">${word.english}</span>
-                            <span class="chinese">${word.chinese}</span>
-                        </div>
-                        <button class="delete-btn" data-id="${word.id}">
-                            <i class="fas fa-trash-alt"></i> 删除
-                        </button>
-                    `;
-                    wordListEl.appendChild(wordItem);
-                });
-                
-                // 添加删除事件监听
-                document.querySelectorAll('.delete-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const id = this.dataset.id;
-                        deleteWord(id);
-                    });
-                });
-            }
-            
-            // 删除单词
-            function deleteWord(id) {
-                if (confirm('确定要删除这个单词吗？')) {
-                    // 从单词库中删除
-                    words = words.filter(word => word.id !== id);
-                    localStorage.setItem('wordList', JSON.stringify(words));
-                    
-                    // 从已使用单词中删除
-                    usedWords = usedWords.filter(wordId => wordId !== id);
-                    localStorage.setItem('usedWords', JSON.stringify(usedWords));
-                    
-                    // 更新显示
-                    updateWordListDisplay();
-                    
-                    // 如果删除的是当前单词，生成新问题
-                    if (currentWord && currentWord.id === id) {
-                        generateQuestion();
-                    }
-                }
-            }
-            
-            // 重置学习进度
-            function resetProgress() {
-                if (confirm('确定要重置学习进度吗？所有单词将重新开始学习。')) {
-                    usedWords = [];
-                    localStorage.setItem('usedWords', JSON.stringify(usedWords));
-                    answerInput.disabled = false;
-                    submitBtn.disabled = false;
-                    generateQuestion();
-                    
-                    // 显示成功消息
-                    restart.play();
-                    resultEl.textContent = "✓ 学习进度已重置！";
-                    resultEl.className = 'result correct';
-                    setTimeout(() => {
-                        resultEl.textContent = '';
-                        resultEl.className = 'result';
-                    }, 2000);
-                }
-            }
-            
-            // 初始化示例数据（如果本地存储为空）
-            if (words.length === 0) {
-                words = [
-                    { id: 'word_1', english: "for good/permanently/timelessly", chinese: "永远/永久地" },
-                    { id: 'word_2', english: "accomplishment", chinese: "成就/完成/成绩" },
-                    { id: 'word_3', english: "benevolent", chinese: "仁慈的/慈善的/乐善好施的" },
-                    { id: 'word_4', english: "conscientious", chinese: "尽责的/勤勤恳恳的/一丝不苟的" },
-                    { id: 'word_5', english: "diligent", chinese: "勤奋的/用功的/刻苦的" }
-                ];
-                localStorage.setItem('wordList', JSON.stringify(words));
-                updateWordListDisplay();
-            }
+            elements.remainingEl.textContent = `剩余单词: ${unusedWords.length}`;
+            elements.answerInput.disabled = false;
+            elements.submitBtn.disabled = false;
+        } else {
+            sounds.get('levelup').play();
+            elements.questionEl.textContent = "🎉 太棒啦！所有单词都学完了！";
+            elements.answerInput.value = '';
+            elements.answerInput.disabled = true;
+            elements.submitBtn.disabled = true;
+            elements.remainingEl.textContent = "剩余单词: 0";
+            state.currentWord = null;
+        }
+        
+        elements.answerInput.focus();
+    }
+    
+    // 更新单词列表显示（使用文档片段减少重绘）
+    function updateWordListDisplay() {
+        if (state.words.length === 0) {
+            elements.wordListEl.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="far fa-folder-open"></i></div>
+                    <p>单词库是空的呢，添加一些单词吧</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const fragment = document.createDocumentFragment();
+        
+        state.words.forEach(word => {
+            const wordItem = document.createElement('div');
+            wordItem.className = 'word-item';
+            wordItem.innerHTML = `
+                <div class="word-text">
+                    <span class="english">${word.english}</span>
+                    <span class="chinese">${word.chinese}</span>
+                </div>
+                <button class="delete-btn" data-id="${word.id}">
+                    <i class="fas fa-trash-alt"></i> 删除
+                </button>
+            `;
+            fragment.appendChild(wordItem);
         });
+        
+        elements.wordListEl.innerHTML = '';
+        elements.wordListEl.appendChild(fragment);
+    }
+    
+    // 事件委托处理单词删除
+    elements.wordListEl.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (!deleteBtn) return;
+        
+        const id = deleteBtn.dataset.id;
+        if (confirm('确定要删除这个单词吗？')) {
+            // 从单词库中删除
+            state.words = state.words.filter(word => word.id !== id);
+            localStorage.setItem('wordList', JSON.stringify(state.words));
+            
+            // 从已使用单词中删除
+            state.usedWords.delete(id);
+            localStorage.setItem('usedWords', JSON.stringify([...state.usedWords]));
+            
+            updateWordListDisplay();
+            
+            // 如果删除的是当前单词，生成新问题
+            if (state.currentWord && state.currentWord.id === id) {
+                generateQuestion();
+            }
+        }
+    });
+    
+    // 初始化示例数据（使用更高效的方式）
+    if (state.words.length === 0) {
+        state.words = [
+            { id: 'word_1', english: "for good/permanently/timelessly", chinese: "永远/永久地" },
+            { id: 'word_2', english: "accomplishment", chinese: "成就/完成/成绩" },
+            { id: 'word_3', english: "benevolent", chinese: "仁慈的/慈善的/乐善好施的" },
+            { id: 'word_4', english: "conscientious", chinese: "尽责的/勤勤恳恳的/一丝不苟的" },
+            { id: 'word_5', english: "diligent", chinese: "勤奋的/用功的/刻苦的" }
+        ];
+        localStorage.setItem('wordList', JSON.stringify(state.words));
+        updateWordListDisplay();
+    }
+});
     </script>
 </body>
 </html>
