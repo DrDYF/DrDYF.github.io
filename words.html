@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>单词记忆卡片</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+		
+		body {
+			background: linear-gradient(135deg, #1a237e, #4a148c);
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+		}
+		
+		.container {
+			width: 100%;
+			max-width: 900px;
+			background: rgba(255, 255, 255, 0.95);
+			border-radius: 20px;
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			animation: fadeIn 0.8s ease-out;
+		}
+		
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		
+		header {
+			background: linear-gradient(90deg, #5c6bc0, #3949ab);
+			color: white;
+			padding: 25px 20px;
+			text-align: center;
+			position: relative;
+			overflow: hidden;
+		}
+		
+		header::before {
+			content: "";
+			position: absolute;
+			top: -50%;
+			left: -50%;
+			width: 200%;
+			height: 200%;
+			background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+			transform: rotate(30deg);
+		}
+		
+		h1 {
+			font-size: 2.5rem;
+			margin-bottom: 10px;
+			text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+			position: relative;
+			z-index: 2;
+		}
+		
+		.tabs {
+			display: flex;
+			background: linear-gradient(90deg, #5c6bc0, #3949ab);
+			position: relative;
+			z-index: 10;
+		}
+		
+		.tab-btn {
+			flex: 1;
+			padding: 18px;
+			background: rgba(255, 255, 255, 0.1);
+			border: none;
+			color: white;
+			font-size: 1.15rem;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			position: relative;
+			overflow: hidden;
+			font-weight: 500;
+		}
+		
+		.tab-btn:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+		
+		.tab-btn.active {
+			background: white;
+			color: #3949ab;
+			font-weight: bold;
+		}
+		
+		.tab-content {
+			display: none;
+			padding: 30px;
+			min-height: 400px;
+		}
+		
+		.tab-content.active {
+			display: block;
+			animation: slideIn 0.4s ease;
+		}
+		
+		@keyframes slideIn {
+			from { opacity: 0; transform: translateY(10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		
+		/* 学习界面样式 */
+		.card {
+			background: white;
+			border-radius: 15px;
+			padding: 30px;
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+			margin-bottom: 30px;
+			text-align: center;
+			border: 1px solid #eee;
+		}
+		
+		.question-container {
+			min-height: 120px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 30px;
+			padding: 20px;
+			background: #f8f9fa;
+			border-radius: 12px;
+			border: 1px dashed #e0e0e0;
+		}
+		
+		.question {
+			font-size: 2.2rem;
+			font-weight: bold;
+			color: #2c3e50;
+			max-width: 100%;
+			word-wrap: break-word;
+			padding: 10px;
+			line-height: 1.4;
+		}
+		
+		.answer-input {
+			width: 100%;
+			padding: 18px;
+			font-size: 1.5rem;
+			border: 2px solid #ddd;
+			border-radius: 12px;
+			text-align: center;
+			margin-bottom: 25px;
+			transition: all 0.3s;
+			background: #fff;
+			box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+		}
+		
+		.answer-input:focus {
+			border-color: #3949ab;
+			outline: none;
+			box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.2);
+		}
+		
+		.submit-btn {
+			background: linear-gradient(90deg, #3949ab, #5c6bc0);
+			color: white;
+			border: none;
+			padding: 18px 30px;
+			font-size: 1.3rem;
+			border-radius: 12px;
+			cursor: pointer;
+			transition: all 0.3s;
+			width: 100%;
+			margin-bottom: 20px;
+			font-weight: 600;
+			letter-spacing: 1px;
+			box-shadow: 0 5px 15px rgba(57, 73, 171, 0.3);
+			position: relative;
+			overflow: hidden;
+		}
+		
+		.submit-btn:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 20px rgba(57, 73, 171, 0.4);
+		}
+		
+		.submit-btn:active {
+			transform: translateY(1px);
+		}
+		
+		.submit-btn::after {
+			content: "";
+			position: absolute;
+			top: -50%;
+			left: -50%;
+			width: 200%;
+			height: 200%;
+			background: rgba(255,255,255,0.1);
+			transform: rotate(30deg);
+			transition: all 0.6s;
+		}
+		
+		.submit-btn:hover::after {
+			transform: rotate(30deg) translate(20%, 20%);
+		}
+		
+		.result {
+			font-size: 1.4rem;
+			min-height: 40px;
+			margin-bottom: 15px;
+			font-weight: 500;
+			padding: 12px;
+			border-radius: 10px;
+			transition: all 0.4s;
+		}
+		
+		.correct {
+			color: #27ae60;
+			background: rgba(39, 174, 96, 0.1);
+			border: 1px solid rgba(39, 174, 96, 0.3);
+		}
+		
+		.incorrect {
+			color: #e74c3c;
+			background: rgba(231, 76, 60, 0.1);
+			border: 1px solid rgba(231, 76, 60, 0.3);
+		}
+		
+		.remaining {
+			font-size: 1.2rem;
+			color: #7f8c8d;
+			font-weight: 500;
+			margin-top: 15px;
+		}
+		
+		.mode-info {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			margin-bottom: 20px;
+			font-size: 1.1rem;
+			color: #5c6bc0;
+			font-weight: 500;
+		}
+		
+		.mode-icon {
+			background: #e8eaf6;
+			border-radius: 50%;
+			width: 36px;
+			height: 36px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.2rem;
+		}
+		
+		/* 添加单词界面样式 */
+		.word-form {
+			display: flex;
+			flex-direction: column;
+			gap: 25px;
+			max-width: 600px;
+			margin: 0 auto;
+		}
+		
+		.form-group {
+			display: flex;
+			flex-direction: column;
+		}
+		
+		label {
+			font-size: 1.15rem;
+			margin-bottom: 10px;
+			font-weight: 600;
+			color: #2c3e50;
+			display: flex;
+			align-items: center;
+		}
+		
+		label i {
+			margin-right: 10px;
+			color: #3949ab;
+		}
+		
+		input {
+			padding: 16px;
+			font-size: 1.15rem;
+			border: 2px solid #ddd;
+			border-radius: 12px;
+			background: #fff;
+			box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+		}
+		
+		input:focus {
+			border-color: #3949ab;
+			outline: none;
+			box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.2);
+		}
+		
+		.add-btn {
+			background: linear-gradient(90deg, #43a047, #2e7d32);
+			color: white;
+			border: none;
+			padding: 18px;
+			font-size: 1.25rem;
+			border-radius: 12px;
+			cursor: pointer;
+			transition: all 0.3s;
+			font-weight: 600;
+			letter-spacing: 1px;
+			box-shadow: 0 5px 15px rgba(67, 160, 71, 0.3);
+			margin-top: 10px;
+		}
+		
+		.add-btn:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 20px rgba(67, 160, 71, 0.4);
+		}
+		
+		/* 单词列表样式 */
+		.word-list-container {
+			max-height: 450px;
+			overflow-y: auto;
+			margin-top: 20px;
+			border: 1px solid #eee;
+			border-radius: 15px;
+			padding: 5px;
+			background: #fff;
+			box-shadow: inset 0 2px 10px rgba(0,0,0,0.03);
+		}
+		
+		.word-item {
+			display: flex;
+			justify-content: space-between;
+			padding: 16px 20px;
+			border-bottom: 1px solid #f0f0f0;
+			align-items: center;
+			transition: all 0.3s;
+		}
+		
+		.word-item:hover {
+			background: #f5f7ff;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+			border-radius: 10px;
+		}
+		
+		.word-item:last-child {
+			border-bottom: none;
+		}
+		
+		.word-text {
+			font-size: 1.15rem;
+			flex: 1;
+			min-width: 0;
+		}
+		
+		.english {
+			font-weight: bold;
+			color: #2c3e50;
+			display: block;
+			margin-bottom: 5px;
+			word-break: break-word;
+		}
+		
+		.chinese {
+			color: #7f8c8d;
+			display: block;
+			word-break: break-word;
+		}
+		
+		.delete-btn {
+			background: linear-gradient(90deg, #e53935, #d32f2f);
+			color: white;
+			border: none;
+			padding: 10px 16px;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: all 0.3s;
+			font-weight: 500;
+			margin-left: 15px;
+			flex-shrink: 0;
+			box-shadow: 0 3px 8px rgba(229, 57, 53, 0.2);
+		}
+		
+		.delete-btn:hover {
+			transform: scale(1.05);
+			box-shadow: 0 5px 12px rgba(229, 57, 53, 0.3);
+		}
+		
+		.reset-btn {
+			background: linear-gradient(90deg, #f57c00, #e65100);
+			color: white;
+			border: none;
+			padding: 18px;
+			font-size: 1.15rem;
+			border-radius: 12px;
+			cursor: pointer;
+			margin-top: 25px;
+			transition: all 0.3s;
+			font-weight: 600;
+			letter-spacing: 1px;
+			box-shadow: 0 5px 15px rgba(245, 124, 0, 0.3);
+			width: 100%;
+		}
+		
+		.reset-btn:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+		}
+		
+		.empty-state {
+			text-align: center;
+			padding: 40px 30px;
+			color: #7f8c8d;
+			background: #f9f9f9;
+			border-radius: 15px;
+			border: 2px dashed #e0e0e0;
+		}
+		
+		.empty-icon {
+			font-size: 4.5rem;
+			margin-bottom: 25px;
+			color: #d0d0d0;
+		}
+		
+		.empty-state p {
+			font-size: 1.25rem;
+			margin-bottom: 20px;
+		}
+		
+		.info-text {
+			text-align: center;
+			color: #7f8c8d;
+			margin-top: 15px;
+			font-size: 1rem;
+			padding: 0 10px;
+		}
+		
+		.hint {
+			font-size: 0.95rem;
+			color: #7f8c8d;
+			margin-top: 5px;
+			text-align: center;
+		}
+		
+		.mode-hint {
+			background: #e8eaf6;
+			padding: 12px;
+			border-radius: 10px;
+			margin-bottom: 20px;
+			border-left: 4px solid #3949ab;
+			font-size: 0.95rem;
+		}
+		
+		/* 响应式设计 */
+		@media (max-width: 768px) {
+			.container {
+				margin: 10px;
+			}
+			
+			header {
+				padding: 20px 15px;
+			}
+			
+			h1 {
+				font-size: 2rem;
+			}
+			
+			.tab-btn {
+				padding: 14px;
+				font-size: 1rem;
+			}
+			
+			.question {
+				font-size: 1.8rem;
+			}
+			
+			.answer-input {
+				font-size: 1.3rem;
+				padding: 15px;
+			}
+			
+			.submit-btn, .add-btn, .reset-btn {
+				padding: 16px;
+				font-size: 1.2rem;
+			}
+			
+			.word-item {
+				flex-direction: column;
+				align-items: flex-start;
+				padding: 20px;
+			}
+			
+			.delete-btn {
+				margin-top: 15px;
+				align-self: flex-end;
+			}
+		}
+		
+		@media (max-width: 480px) {
+			.question {
+				font-size: 1.6rem;
+			}
+			
+			.answer-input {
+				font-size: 1.2rem;
+			}
+			
+			.result {
+				font-size: 1.2rem;
+			}
+		}
+
+		.group-controls {
+			display: flex;
+			justify-content: center;
+			gap: 15px;
+			margin: 20px 0;
+			flex-wrap: wrap;
+		}
+		
+		.group-selector {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			background: rgba(255, 255, 255, 0.15);
+			border-radius: 50px;
+			padding: 10px 20px;
+			color: white;
+			font-weight: 500;
+			box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+		}
+		
+		.group-selector select {
+			background: rgba(255, 255, 255, 0.9);
+			border: none;
+			padding: 8px 15px;
+			border-radius: 8px;
+			font-size: 1rem;
+			min-width: 150px;
+			box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+		}
+		
+		.group-btn {
+			background: #5c6bc0;
+			color: white;
+			border: none;
+			padding: 10px 15px;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		
+		.group-btn:hover {
+			background: rgba(255, 255, 255, 0.25);
+			transform: translateY(-2px);
+		}
+		
+		.group-modal {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0,0,0,0.7);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 1000;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.3s;
+		}
+		
+		.group-modal.active {
+			opacity: 1;
+			pointer-events: all;
+		}
+		
+		.group-modal-content {
+			background: white;
+			border-radius: 20px;
+			padding: 30px;
+			width: 90%;
+			max-width: 500px;
+			box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+			transform: translateY(20px);
+			transition: transform 0.3s;
+		}
+		
+		.group-modal.active .group-modal-content {
+			transform: translateY(0);
+		}
+		
+		.group-modal-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 25px;
+		}
+		
+		.group-modal-header h2 {
+			color: #2c3e50;
+			font-size: 1.8rem;
+		}
+		
+		.close-modal {
+			background: none;
+			border: none;
+			font-size: 1.5rem;
+			cursor: pointer;
+			color: #7f8c8d;
+			transition: color 0.3s;
+		}
+		
+		.close-modal:hover {
+			color: #e74c3c;
+		}
+		
+		.group-form {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+		
+		.group-form input {
+			padding: 14px;
+			font-size: 1.1rem;
+			border: 2px solid #ddd;
+			border-radius: 12px;
+			background: #fff;
+			box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+		}
+		
+		.group-form input:focus {
+			border-color: #3949ab;
+			outline: none;
+			box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.2);
+		}
+		
+		.modal-actions {
+			display: flex;
+			gap: 15px;
+			margin-top: 20px;
+		}
+		
+		.modal-btn {
+			flex: 1;
+			padding: 14px;
+			border: none;
+			border-radius: 12px;
+			font-size: 1.1rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+		
+		.modal-btn.primary {
+			background: linear-gradient(90deg, #3949ab, #5c6bc0);
+			color: white;
+			box-shadow: 0 5px 15px rgba(57, 73, 171, 0.3);
+		}
+		
+		.modal-btn.primary:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 20px rgba(57, 73, 171, 0.4);
+		}
+		
+		.modal-btn.secondary {
+			background: #f0f0f0;
+			color: #2c3e50;
+		}
+		
+		.modal-btn.secondary:hover {
+			background: #e0e0e0;
+		}
+		
+		.group-item {
+			display: flex;
+			justify-content: space-between;
+			padding: 12px 15px;
+			border-bottom: 1px solid #eee;
+			align-items: center;
+		}
+		
+		.group-item:last-child {
+			border-bottom: none;
+		}
+		
+		.group-name {
+			font-weight: 500;
+			font-size: 1.1rem;
+		}
+		
+		.group-stats {
+			font-size: 0.9rem;
+			color: #7f8c8d;
+		}
+		
+		.group-actions {
+			display: flex;
+			gap: 10px;
+		}
+		
+		.group-action-btn {
+			background: none;
+			border: none;
+			color: #7f8c8d;
+			cursor: pointer;
+			font-size: 1.1rem;
+			transition: color 0.3s;
+		}
+		
+		.group-action-btn:hover {
+			color: #3949ab;
+		}
+		
+		.group-action-btn.delete:hover {
+			color: #e74c3c;
+		}
+		
+		.group-list {
+			max-height: 300px;
+			overflow-y: auto;
+			margin: 20px 0;
+			border: 1px solid #eee;
+			border-radius: 12px;
+		}
+		
+		.group-hint {
+			text-align: center;
+			color: #7f8c8d;
+			margin-top: 15px;
+			font-size: 0.9rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1><i class="fas fa-book-open"></i> 单词记忆卡片</h1>
+		</header>
+		
+		<div class="group-controls">
+			<div class="group-selector">
+				<i class="fas fa-layer-group"></i>
+				<select id="group-select"></select>
+			</div>
+			<button class="group-btn" id="manage-groups-btn">
+				<i class="fas fa-cog"></i> 管理单词组
+			</button>
+		</div>
+		
+		<div class="tabs">
+			<button class="tab-btn active" data-tab="learn">
+				<i class="fas fa-brain"></i> 学习模式
+			</button>
+			<button class="tab-btn" data-tab="add">
+				<i class="fas fa-plus-circle"></i> 添加单词
+			</button>
+			<button class="tab-btn" data-tab="list">
+				<i class="fas fa-list"></i> 单词列表
+			</button>
+		</div>
+		
+		<div id="learn" class="tab-content active">
+			<div class="mode-hint">
+				<i class="fas fa-info-circle"></i>单词有多个含义时，答对其中任意一个即可
+			</div>
+			
+			<div class="mode-info">
+				<div class="mode-icon">
+					<i class="fas fa-random"></i>
+				</div>
+				<div>長弓虹音模式：随机显示中英文</div>
+			</div>
+			
+			<div class="card">
+				<div class="question-container">
+					<div class="question" id="question">加载ing...</div>
+				</div>
+				<input type="text" class="answer-input" id="answer" placeholder="输入答案吧..." autocomplete="off">
+				<button class="submit-btn" id="submit">
+					<i class="fas fa-paper-plane"></i> 提交
+				</button>
+				<div class="result" id="result"></div>
+				<div class="remaining" id="remaining">剩余单词: 0</div>
+			</div>
+		</div>
+		
+		<!-- 添加单词 -->
+		<div id="add" class="tab-content">
+			<div class="word-form">
+				<div class="form-group">
+					<label for="english"><i class="fas fa-font"></i> 英文单词/短语</label>
+					<input type="text" id="english" placeholder="例如：for good/permanently/timelessly">
+					<div class="hint">多个同义词用斜杠“/”分隔</div>
+				</div>
+				
+				<div class="form-group">
+					<label for="chinese"><i class="fas fa-language"></i> 中文翻译</label>
+					<input type="text" id="chinese" placeholder="例如：永远/永久地/长期地">
+					<div class="hint">多个含义用斜杠“/”分隔</div>
+				</div>
+				
+				<button class="add-btn" id="add-word">
+					<i class="fas fa-plus"></i> 添加到单词库
+				</button>
+			</div>
+		</div>
+		
+		<!-- 单词列表 -->
+		<div id="list" class="tab-content">
+			<div class="word-list-container" id="word-list">
+				<!-- 单词列表将在这里动态生成 -->
+			</div>
+			<button class="reset-btn" id="reset">
+				<i class="fas fa-sync-alt"></i> 重置学习进度
+			</button>
+			<div class="info-text">提示：删除单词后，其学习记录也会被删除</div>
+		</div>
+	</div>
+	
+	<!-- 新增单词组管理模态框 -->
+	<div class="group-modal" id="group-modal">
+		<div class="group-modal-content">
+			<div class="group-modal-header">
+				<h2 id="modal-title">管理单词组</h2>
+				<button class="close-modal" id="close-modal">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			
+			<div id="group-management">
+				<div class="group-form">
+					<input type="text" id="new-group-name" placeholder="输入新单词组名称">
+				</div>
+				
+				<div class="modal-actions">
+					<button class="modal-btn primary" id="create-group-btn">创建单词组</button>
+				</div>
+				
+				<div class="group-list" id="group-list">
+					<!-- 单词组列表将在这里动态生成 -->
+				</div>
+				
+				<div class="group-hint">
+					<i class="fas fa-info-circle"></i> 提示：删除单词组会同时删除组内所有单词和学习记录
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			// 缓存DOM元素
+			const elements = {
+				tabBtns: document.querySelectorAll('.tab-btn'),
+				tabContents: document.querySelectorAll('.tab-content'),
+				questionEl: document.getElementById('question'),
+				answerInput: document.getElementById('answer'),
+				submitBtn: document.getElementById('submit'),
+				resultEl: document.getElementById('result'),
+				remainingEl: document.getElementById('remaining'),
+				englishInput: document.getElementById('english'),
+				chineseInput: document.getElementById('chinese'),
+				addWordBtn: document.getElementById('add-word'),
+				wordListEl: document.getElementById('word-list'),
+				resetBtn: document.getElementById('reset'),
+				groupSelect: document.getElementById('group-select'),
+				manageGroupsBtn: document.getElementById('manage-groups-btn'),
+				groupModal: document.getElementById('group-modal'),
+				closeModal: document.getElementById('close-modal'),
+				modalTitle: document.getElementById('modal-title'),
+				newGroupName: document.getElementById('new-group-name'),
+				createGroupBtn: document.getElementById('create-group-btn'),
+				groupList: document.getElementById('group-list')
+			};
+
+			// 音频预加载
+			const sounds = {
+				bingo: new Audio('sounds/bingo.ogg'),
+				wrong: new Audio('sounds/false.ogg'),
+				levelup: new Audio('sounds/levelup.ogg'),
+				restart: new Audio('sounds/restart.ogg'),
+				click: new Audio('sounds/click2.mp3')
+			};
+			
+			// 初始化应用状态
+			const state = {
+				groups: {},
+				currentGroup: '默认组',
+				currentWord: null,
+				currentMode: null
+			};
+			
+			// 初始化应用数据
+			function initApp() {
+				// 尝试加载保存的单词组
+				const savedGroups = localStorage.getItem('wordGroups');
+				if (savedGroups) {
+					state.groups = JSON.parse(savedGroups);
+					
+					// 转换usedWords数组为Set
+					for (const group in state.groups) {
+						state.groups[group].usedWords = 
+							new Set(state.groups[group].usedWords);
+					}
+				} else {
+					// 创建默认组
+					state.groups = {
+						'默认组': {
+							words: [
+								{ id: 'word_1', english: "for good/permanently/timelessly", chinese: "永远/永久地" },
+								{ id: 'word_2', english: "accomplishment", chinese: "成就/完成/成绩" },
+								{ id: 'word_3', english: "benevolent", chinese: "仁慈的/慈善的/乐善好施的" },
+								{ id: 'word_4', english: "conscientious", chinese: "尽责的/勤勤恳恳的/一丝不苟的" },
+								{ id: 'word_5', english: "diligent", chinese: "勤奋的/用功的/刻苦的" }
+							],
+							usedWords: new Set()
+						}
+					};
+					saveGroups();
+				}
+				
+				// 加载当前选中的组
+				const savedGroup = localStorage.getItem('currentGroup');
+				if (savedGroup && state.groups[savedGroup]) {
+					state.currentGroup = savedGroup;
+				}
+				
+				// 初始化UI
+				initGroupSelector();
+				updateWordListDisplay();
+				generateQuestion();
+			}
+			
+			// 保存单词组到本地存储
+			function saveGroups() {
+				const groupsToSave = {};
+				
+				for (const group in state.groups) {
+					groupsToSave[group] = {
+						words: state.groups[group].words,
+						usedWords: [...state.groups[group].usedWords] // 转换Set为数组
+					};
+				}
+				
+				localStorage.setItem('wordGroups', JSON.stringify(groupsToSave));
+				localStorage.setItem('currentGroup', state.currentGroup);
+			}
+			
+			// 初始化组选择器
+			function initGroupSelector() {
+				elements.groupSelect.innerHTML = '';
+				
+				for (const group in state.groups) {
+					const option = document.createElement('option');
+					option.value = group;
+					option.textContent = group;
+					option.selected = group === state.currentGroup;
+					elements.groupSelect.appendChild(option);
+				}
+			}
+			
+			// 切换到指定单词组
+			function switchGroup(groupName) {
+				if (!state.groups[groupName]) return;
+				
+				state.currentGroup = groupName;
+				saveGroups();
+				initGroupSelector();
+				updateWordListDisplay();
+				generateQuestion();
+			}
+			
+			// 创建新单词组
+			function createGroup() {
+				const groupName = elements.newGroupName.value.trim();
+				if (!groupName) {
+					alert('请输入单词组名称');
+					return;
+				}
+				
+				if (state.groups[groupName]) {
+					alert('该单词组名称已存在');
+					return;
+				}
+				
+				// 创建新单词组
+				state.groups[groupName] = {
+					words: [],
+					usedWords: new Set()
+				};
+				
+				saveGroups();
+				switchGroup(groupName);
+				elements.newGroupName.value = '';
+				renderGroupList();
+				
+				// 播放音效
+				sounds.click.play();
+			}
+			
+			// 删除单词组
+			function deleteGroup(groupName) {
+				if (Object.keys(state.groups).length <= 1) {
+					alert('至少需要保留一个单词组');
+					return;
+				}
+				
+				if (!confirm(`确定要删除单词组 "${groupName}" 吗？此操作将删除该组所有单词和学习记录！`)) {
+					return;
+				}
+				
+				delete state.groups[groupName];
+				saveGroups();
+				
+				// 如果删除的是当前组，切换到默认组
+				if (state.currentGroup === groupName) {
+					switchGroup(Object.keys(state.groups)[0]);
+				} else {
+					renderGroupList();
+				}
+				
+				// 播放音效
+				sounds.click.play();
+			}
+			
+			// 渲染单词组列表
+			function renderGroupList() {
+				elements.groupList.innerHTML = '';
+				
+				for (const group in state.groups) {
+					const groupItem = document.createElement('div');
+					groupItem.className = 'group-item';
+					
+					const wordCount = state.groups[group].words.length;
+					const learnedCount = state.groups[group].usedWords.size;
+					
+					groupItem.innerHTML = `
+						<div>
+							<div class="group-name">${group}</div>
+							<div class="group-stats">${wordCount} 个单词 | 已掌握 ${learnedCount} 个</div>
+						</div>
+						<div class="group-actions">
+							<button class="group-action-btn select-group" data-group="${group}">
+								<i class="fas fa-check-circle"></i>
+							</button>
+							<button class="group-action-btn delete delete-group" data-group="${group}">
+								<i class="fas fa-trash-alt"></i>
+							</button>
+						</div>
+					`;
+					
+					elements.groupList.appendChild(groupItem);
+				}
+				
+				// 添加事件监听器
+				document.querySelectorAll('.select-group').forEach(btn => {
+					btn.addEventListener('click', () => {
+						switchGroup(btn.dataset.group);
+						elements.groupModal.classList.remove('active');
+					});
+				});
+				
+				document.querySelectorAll('.delete-group').forEach(btn => {
+					btn.addEventListener('click', () => {
+						deleteGroup(btn.dataset.group);
+					});
+				});
+			}
+			
+			// 生成问题
+			function generateQuestion() {
+				const words = state.groups[state.currentGroup].words;
+				const usedWords = state.groups[state.currentGroup].usedWords;
+				
+				const unusedWords = words.filter(word => !usedWords.has(word.id));
+				
+				if (unusedWords.length > 0) {
+					// 随机选择
+					state.currentWord = unusedWords[
+						Math.floor(Math.random() * unusedWords.length)
+					];
+					
+					// 随机决定显示模式
+					state.currentMode = Math.random() > 0.5 ? 'en' : 'cn';
+					
+					if (state.currentMode === 'en') {
+						elements.questionEl.textContent = state.currentWord.english;
+						elements.answerInput.placeholder = "请输入中文翻译...";
+					} else {
+						elements.questionEl.textContent = state.currentWord.chinese;
+						elements.answerInput.placeholder = "请输入英文单词...";
+					}
+					
+					elements.remainingEl.textContent = `剩余单词: ${unusedWords.length}`;
+					elements.answerInput.disabled = false;
+					elements.submitBtn.disabled = false;
+				} else {
+					sounds.levelup.play();
+					elements.questionEl.textContent = "🎉 太棒啦！所有单词都学完了！";
+					elements.answerInput.value = '';
+					elements.answerInput.disabled = true;
+					elements.submitBtn.disabled = true;
+					elements.remainingEl.textContent = "剩余单词: 0";
+					state.currentWord = null;
+				}
+				
+				elements.answerInput.focus();
+			}
+			
+			// 检查答案
+			function checkAnswer() {
+				const userAnswer = elements.answerInput.value.trim();
+				if (!userAnswer || !state.currentWord) return;
+				
+				let isCorrect = false;
+				const correctAnswers = state.currentMode === 'en' 
+					? state.currentWord.chinese.split('/').map(a => a.trim())
+					: state.currentWord.english.split('/').map(s => s.trim());
+				
+				isCorrect = correctAnswers.some(correct => 
+					correct.toLowerCase() === userAnswer.toLowerCase()
+				);
+				
+				if (isCorrect) {
+					sounds.bingo.play();
+					elements.resultEl.textContent = `✓ 正确！完整答案: ${state.currentMode === 'en' 
+						? state.currentWord.chinese : state.currentWord.english}`;
+					elements.resultEl.className = 'result correct';
+					
+					// 标记为已学习
+					state.groups[state.currentGroup].usedWords.add(state.currentWord.id);
+					saveGroups();
+					
+					// 清空输入框并生成新问题
+					elements.answerInput.value = '';
+					setTimeout(() => {
+						elements.resultEl.textContent = '';
+						elements.resultEl.className = 'result';
+						generateQuestion();
+					}, 1500);
+				} else {
+					sounds.wrong.play();
+					elements.resultEl.textContent = `✗ 错误！正确答案: ${state.currentMode === 'en' 
+						? state.currentWord.chinese : state.currentWord.english}`;
+					elements.resultEl.className = 'result incorrect';
+				}
+			}
+			
+			// 添加单词
+			function addWord() {
+				const english = elements.englishInput.value.trim();
+				const chinese = elements.chineseInput.value.trim();
+				
+				if (!english || !chinese) {
+					alert('请填写英文和中文内容');
+					return;
+				}
+				
+				// 添加到当前单词组
+				const newWord = {
+					id: 'word_' + Date.now() + Math.random().toString(36).substr(2, 5),
+					english,
+					chinese
+				};
+				
+				state.groups[state.currentGroup].words.push(newWord);
+				saveGroups();
+				
+				// 清空输入框
+				elements.englishInput.value = '';
+				elements.chineseInput.value = '';
+				
+				updateWordListDisplay();
+				
+				// 如果当前没有单词，生成新问题
+				if (state.groups[state.currentGroup].words.length > 0 && !state.currentWord) {
+					generateQuestion();
+				}
+				
+				// 显示成功消息
+				sounds.bingo.play();
+				elements.resultEl.textContent = "✓ 单词添加成功！";
+				elements.resultEl.className = 'result correct';
+				setTimeout(() => {
+					elements.resultEl.textContent = '';
+					elements.resultEl.className = 'result';
+				}, 2000);
+			}
+			
+			// 更新单词列表显示
+			function updateWordListDisplay() {
+				const words = state.groups[state.currentGroup].words;
+				
+				if (words.length === 0) {
+					elements.wordListEl.innerHTML = `
+						<div class="empty-state">
+							<div class="empty-icon"><i class="far fa-folder-open"></i></div>
+							<p>单词库是空的呢，添加一些单词吧</p>
+						</div>
+					`;
+					return;
+				}
+				
+				const fragment = document.createDocumentFragment();
+				
+				words.forEach(word => {
+					const wordItem = document.createElement('div');
+					wordItem.className = 'word-item';
+					wordItem.innerHTML = `
+						<div class="word-text">
+							<span class="english">${word.english}</span>
+							<span class="chinese">${word.chinese}</span>
+						</div>
+						<button class="delete-btn" data-id="${word.id}">
+							<i class="fas fa-trash-alt"></i> 删除
+						</button>
+					`;
+					fragment.appendChild(wordItem);
+				});
+				
+				elements.wordListEl.innerHTML = '';
+				elements.wordListEl.appendChild(fragment);
+			}
+			
+			// 事件监听器设置
+			function setupEventListeners() {
+				// 标签切换
+				document.querySelector('.tabs').addEventListener('click', function(e) {
+					const btn = e.target.closest('.tab-btn');
+					if (!btn) return;
+					
+					sounds.click.play();
+					
+					elements.tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+					elements.tabContents.forEach(c => 
+						c.classList.toggle('active', c.id === btn.dataset.tab)
+					);
+					
+					if (btn.dataset.tab === 'learn') {
+						generateQuestion();
+					}
+				});
+				
+				// 提交答案
+				elements.submitBtn.addEventListener('click', checkAnswer);
+				elements.answerInput.addEventListener('keypress', (e) => {
+					if (e.key === 'Enter') checkAnswer();
+				});
+				
+				// 添加单词
+				elements.addWordBtn.addEventListener('click', addWord);
+				elements.chineseInput.addEventListener('keypress', (e) => {
+					if (e.key === 'Enter') addWord();
+				});
+				
+				// 重置学习进度
+				elements.resetBtn.addEventListener('click', () => {
+					if (confirm('确定要重置当前单词组的学习进度吗？所有单词将重新开始学习。')) {
+						state.groups[state.currentGroup].usedWords.clear();
+						saveGroups();
+						elements.answerInput.disabled = false;
+						elements.submitBtn.disabled = false;
+						generateQuestion();
+						
+						sounds.restart.play();
+						elements.resultEl.textContent = "✓ 学习进度已重置！";
+						elements.resultEl.className = 'result correct';
+						setTimeout(() => {
+							elements.resultEl.textContent = '';
+							elements.resultEl.className = 'result';
+						}, 2000);
+					}
+				});
+				
+				// 删除单词
+				elements.wordListEl.addEventListener('click', function(e) {
+					const deleteBtn = e.target.closest('.delete-btn');
+					if (!deleteBtn) return;
+					
+					const id = deleteBtn.dataset.id;
+					if (confirm('确定要删除这个单词吗？')) {
+						const words = state.groups[state.currentGroup].words;
+						const usedWords = state.groups[state.currentGroup].usedWords;
+						
+						// 从单词库中删除
+						const index = words.findIndex(word => word.id === id);
+						if (index !== -1) {
+							words.splice(index, 1);
+						}
+						
+						// 从已使用单词中删除
+						usedWords.delete(id);
+						saveGroups();
+						
+						updateWordListDisplay();
+						
+						// 如果删除的是当前单词，生成新问题
+						if (state.currentWord && state.currentWord.id === id) {
+							generateQuestion();
+						}
+						
+						sounds.click.play();
+					}
+				});
+				
+				// 组切换
+				elements.groupSelect.addEventListener('change', (e) => {
+					switchGroup(e.target.value);
+					sounds.click.play();
+				});
+				
+				// 管理组按钮
+				elements.manageGroupsBtn.addEventListener('click', () => {
+					elements.modalTitle.textContent = '管理单词组';
+					elements.newGroupName.value = '';
+					renderGroupList();
+					elements.groupModal.classList.add('active');
+					sounds.click.play();
+				});
+				
+				// 关闭模态框
+				elements.closeModal.addEventListener('click', () => {
+					elements.groupModal.classList.remove('active');
+					sounds.click.play();
+				});
+				
+				// 创建组按钮
+				elements.createGroupBtn.addEventListener('click', createGroup);
+				elements.newGroupName.addEventListener('keypress', (e) => {
+					if (e.key === 'Enter') createGroup();
+				});
+				
+				// 点击模态框外部关闭
+				elements.groupModal.addEventListener('click', (e) => {
+					if (e.target === elements.groupModal) {
+						elements.groupModal.classList.remove('active');
+					}
+				});
+			}
+			
+			// 初始化应用
+			initApp();
+			setupEventListeners();
+		});
+	</script>
+</body>
+</html>
