@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="/Pictures/Dr_DYF.webp" type="image/x-icon">
+	<title>Dr_DYF</title>
+	<style>
+		/* 原有样式保持不变 */
+		:root {
+			--bg-color: rgba(0, 0, 0, 0.1);
+			--text-color: #ffffff;
+			--button-width: 70%;
+		}
+		
+		@font-face {
+			font-family: "Pixel";
+			src: url("/CuteImagine/Resources/Font.ttf");
+		}
+		
+		.title {
+			width: 90%;
+			height: auto;
+		}
+		
+		body {
+			font-family: "Pixel";
+			color: var(--text-color);
+			text-align: center;
+			margin: 0;
+			padding: 0;
+			background-image: url('/Pictures/background.png');
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-position: center;
+		}
+		
+		.container {
+			max-width: 80%;
+			margin: 50% auto;
+			padding: 20px;
+			background-color: var(--bg-color);
+			border-radius: 10px;
+			opacity: 0;
+			transition: opacity 0.5s ease-in-out;
+		}
+		
+		.hidden {
+			display: none;
+		}
+		
+		.show {
+			display: block;
+			opacity: 1;
+		}
+		
+		.button {
+			font-family: "Pixel";
+			background-image: url('/Pictures/button.png');
+			background-size: 100% 100%;
+			border: none;
+			color: white;
+			padding: 0;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 12px;
+			line-height: 2;
+			margin: 5px 5px;
+			cursor: pointer;
+			border-radius: 1px;
+			transition: background-color 0.3s;
+			width: var(--button-width);
+			height: 35%;
+			white-space: nowrap;
+			overflow: hidden;
+		}
+		
+		.button:hover {
+			background-color: rgba(124, 179, 66, 0.6);
+		}
+		
+		.button:active {
+			background-image: url('/Pictures/button_highlighted.png');
+		}
+		
+		.button-container {
+			display: flex;
+			justify-content: space-between;
+			width: 73%;
+			margin: 2px auto;
+		}
+		
+		@keyframes rainbow {
+			0% {
+				background-position: 0% 50%;
+			}
+		
+			100% {
+				background-position: 100% 50%;
+			}
+		}
+		
+		footer p {
+			display: block;
+			margin: 10px 0;
+			text-decoration: none;
+			color: transparent;
+			background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+			background-size: 1100% auto;
+			-webkit-background-clip: text;
+			background-clip: text;
+			animation: rainbow 3s linear infinite;
+			font-weight: bold;
+		}
+		
+		.about-popup {
+			position: fixed;
+			bottom: 100px; /* 从底部向上一点 */
+			right: -320px; /* 初始位置在屏幕右侧之外 */
+			width: 300px;
+			height: 200px;
+			color: white;
+			font-family: "Pixel";
+			padding: 10px;
+			border-radius: 10px;
+			z-index: 1001;
+			transition: right 0.5s ease-in-out;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+		}
+		.about-popup.show {
+			right: 20px; /* 滑入后停留在距离右侧20px的位置 */
+		}
+		.about-popup.hidden {
+			display: none;
+		}
+		.about-content {
+			margin-top: 10px;
+			color: transparent;
+			background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet, indigo, blue, green, yellow, orange, red);
+			background-size: 1100% auto;
+			-webkit-background-clip: text;
+			background-clip: text;
+			animation: rainbow 3s linear infinite;
+			font-weight: bold;
+			font-size: 14px;
+			line-height: 1.4;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container show" id="mainContainer">
+		<img src="/Pictures/title.png" alt="Dr_DYF" class="title">
+		<br>
+		<button class="button" id="singlePlayerButton">单人游戏</button>
+		<br>
+		<button class="button" id="multiplePlayerButton">多人游戏</button>
+		<br>
+		<button class="button" id="realmsButton">Minecraft Realms</button>
+		<img src="/Pictures/trial_available.gif" style="position: absolute; margin: 13px -37px;">
+		<img src="/Pictures/news.png" style="position: absolute; margin: 10px -24px;">
+		<br>
+		<button class="button" id="modButton">模组</button>
+		<br>
+		<div class="button-container">
+			<button class="button" id="optionButton">选项</button>
+			<button class="button">退出</button>
+		</div>
+	</div>
+	<div class="container hidden" id="singlePlayerContainer">
+		<a href="https://www.mc.js.cool/">
+			<button class="button">MC前端版</button>
+		</a>
+		<a href="/lotto.html">
+			<button class="button">小游戏</button>
+		</a>
+		<a href="https://cc.xiaogd.net/">
+			<button class="button">电路</button>
+		</a>
+		<a href="/words.html">
+			<button class="button">单词</button>
+		</a>
+		<br>
+		<br>
+		<button class="button finishButton">完成</button>
+	</div>
+	<div class="container hidden" id="multiplePlayerContainer">
+		<a href="https://mccag.cn/">
+			<button class="button">可爱头像生成器</button>
+		</a>
+		<a href="/art.html">
+			<button class="button">AI绘画</button>
+		</a>
+		<a href="https://colorize.fun/en/minecraft">
+			<button class="button">彩色文字</button>
+		</a>
+		<a href="https://www.chriskim.cn/image-blender/">
+			<button class="button">幻影坦克</button>
+		</a>
+		<br>
+		<br>
+		<button class="button finishButton">完成</button>
+	</div>
+	<div class="container hidden" id="modContainer">
+		<a href="https://github.com/codecrafters-io/build-your-own-x">
+			<button class="button">大师杰作</button>
+		</a>
+		<a href="https://zh.ifixit.com/Guide">
+			<button class="button">无所不修</button>
+		</a>
+		<a href="https://github.com/jwasham/coding-interview-university">
+			<button class="button">程序员自我修养</button>
+		</a>
+		<a href="https://github.com/kevingo/coding-interview-university-zh-tw/blob/master/translations/README-cn.md">
+			<button class="button">程序员自我修养中文版</button>
+		</a>
+		<a href="http://jldzz.cn/">
+			<button class="button">机友</button>
+		</a>
+		<a href="https://www.xiaozhongjishu.com/sites/159.html">
+			<button class="button">楠坪</button>
+		</a>
+		<br>
+		<br>
+		<button class="button finishButton">完成</button>
+	</div>
+	<div class="container hidden" id="realmsContainer">
+		<a href="https://liaoxuefeng.com/books/python/introduction/index.html">
+			<button class="button">Python</button>
+		</a>
+		<a href="https://www.runoob.com/">
+			<button class="button">菜鸟教程</button>
+		</a>
+		<a href="https://roadmap.sh/">
+			<button class="button">全家桶</button>
+		</a>
+		<a href="https://www.gdquest.com/">
+			<button class="button">GodotQuests</button>
+		</a>
+		<br>
+		<br>
+		<button class="button finishButton">完成</button>
+	</div>
+	<div class="container hidden" id="optionContainer">
+		<a href="/Pictures/2025XT.png" download="2025XT.png">
+			<button class="button">2025</button>
+		</a>
+		<button class="button" id="aboutMeButton">关于我</button>
+		<br>
+		<br>
+		<button class="button finishButton">完成</button>
+	</div>
+	<!-- 新增的关于我弹窗 -->
+	<div class="about-popup hidden" id="aboutPopup">
+		<div class="about-content">
+			欢迎来到我的网站！<br>
+			我是Dr_DYF，一个热爱MC的开发者。<br>
+		</div>
+	</div>
+	<audio id="clickSound" src="/sounds/click1.mp3" preload="auto"></audio>
+	<footer>
+		<p>© 2024 Dr_DYF的网站</p>
+	</footer>
+	<script>
+		const mainContainer = document.getElementById("mainContainer"),
+			singlePlayerContainer = document.getElementById("singlePlayerContainer"),
+			multiplePlayerContainer = document.getElementById("multiplePlayerContainer"),
+			realmsContainer = document.getElementById("realmsContainer"),
+			modContainer = document.getElementById("modContainer"),
+			optionContainer = document.getElementById("optionContainer"),
+			aboutMeButton = document.getElementById("aboutMeButton"),
+			aboutPopup = document.getElementById("aboutPopup"),
+			buttons = document.querySelectorAll(".button");
+		
+		let popupTimeout;
+		
+		function playClickSound() {
+			const e = document.getElementById("clickSound");
+			e.currentTime = 0, e.play();
+		}
+		
+		function toggleContainers(e, t) {
+			e.classList.remove("show"), e.classList.add("hidden"), t.classList.remove("hidden"), t.style.opacity = 0, t.classList.add("show"), requestAnimationFrame(() => {
+				t.style.opacity = 1
+			})
+		}
+		
+		// 创建按钮ID与对应容器的映射
+		const buttonContainerMap = {
+			singlePlayerButton: singlePlayerContainer,
+			multiplePlayerButton: multiplePlayerContainer,
+			realmsButton: realmsContainer,
+			modButton: modContainer,
+			optionButton: optionContainer
+		};
+		
+		// 子容器数组用于返回逻辑
+		const subContainers = [
+			singlePlayerContainer,
+			multiplePlayerContainer,
+			realmsContainer,
+			modContainer,
+			optionContainer
+		];
+		
+		buttons.forEach(button => {
+			button.addEventListener("click", event => {
+				playClickSound();
+				const target = event.target;
+				
+				// 处理导航按钮
+				if (buttonContainerMap[target.id]) {
+					toggleContainers(mainContainer, buttonContainerMap[target.id]);
+					return;
+				}
+				
+				// 处理返回按钮
+				if (target.classList.contains("finishButton")) {
+					const visibleContainer = subContainers.find(container => 
+						!container.classList.contains("hidden")
+					);
+					if (visibleContainer) {
+						toggleContainers(visibleContainer, mainContainer);
+					}
+				}
+			});
+		});
+		
+		// 新的关于我弹窗处理
+		aboutMeButton.addEventListener("click", () => {
+			playClickSound();
+			// 清除之前的定时器
+			if (popupTimeout) {
+				clearTimeout(popupTimeout);
+			}
+			// 如果弹窗正在显示，先隐藏再重新显示以重置动画
+			if (aboutPopup.classList.contains("show")) {
+				aboutPopup.classList.remove("show");
+				setTimeout(() => {
+					aboutPopup.classList.remove("hidden");
+					requestAnimationFrame(() => {
+						aboutPopup.classList.add("show");
+					});
+				}, 50);
+			} else {
+				// 显示弹窗
+				aboutPopup.classList.remove("hidden");
+				requestAnimationFrame(() => {
+					aboutPopup.classList.add("show");
+				});
+			}
+			
+			// 10秒后隐藏弹窗
+			popupTimeout = setTimeout(() => {
+				aboutPopup.classList.remove("show");
+				// 等待动画结束后完全隐藏
+				setTimeout(() => {
+					aboutPopup.classList.add("hidden");
+				}, 500);
+			}, 5000);
+		});
+		
+		// 点击弹窗区域可以提前关闭
+		aboutPopup.addEventListener("click", () => {
+			if (popupTimeout) clearTimeout(popupTimeout);
+			aboutPopup.classList.remove("show");
+			setTimeout(() => {
+				aboutPopup.classList.add("hidden");
+			}, 500);
+		});
+	</script>
+</body>
+
+</html>
