@@ -1,1 +1,110 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>我</title><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{background:linear-gradient(135deg,#0c0f29,#1a1c40,#0a0c25);color:#e0f7fa;font-family:'Exo 2',sans-serif;min-height:100vh;overflow:hidden;position:relative}.stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d) infinite ease-in-out}.container{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:20px;text-align:center;position:relative;z-index:1}.text-container{background:rgba(10,15,35,.1);border:1px solid rgba(100,150,255,.2);border-radius:15px;padding:40px;max-width:800px;width:90%;margin:0 auto 40px;box-shadow:0 0 50px rgba(80,120,255,.15),inset 0 0 20px rgba(80,120,255,.1);backdrop-filter:blur(8px);position:relative;overflow:hidden;min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center}.text-container:before{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center,rgba(100,150,255,.1) 0,transparent 70%);pointer-events:none}.revelation-text{font-size:2.5rem;line-height:1.6;font-weight:300;text-align:center;width:100%;opacity:0;transition:opacity .8s ease,transform .8s ease;position:absolute;padding:20px;transform:translateY(20px)}.revelation-text.active{opacity:1;transform:translateY(0)}.revelation-text span{color:#FB3939;font-weight:400;text-shadow:0 0 10px rgba(77,208,225,.5)}.continue-btn{background:transparent;color:rgba(200,220,255,.7);border:1px solid rgba(100,150,255,.3);border-radius:50px;padding:15px 50px;font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:300;letter-spacing:4px;cursor:pointer;transition:all .4s ease;position:relative;overflow:hidden;margin-top:30px;backdrop-filter:blur(5px);background:rgba(20,30,60,.3)}.continue-btn:hover{color:rgba(255,255,255,.9);border-color:rgba(100,150,255,.6);box-shadow:0 0 20px rgba(80,120,255,.3);letter-spacing:6px}.continue-btn:active{transform:translateY(2px)}.continue-btn:before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:all .6s ease}.continue-btn:hover:before{left:100%}.hologram{position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(100,150,255,.1) 0,transparent 70%);border-radius:50%;filter:blur(40px);z-index:0}.hologram:nth-child(1){top:10%;left:5%;animation:float 15s infinite ease-in-out}.hologram:nth-child(2){bottom:15%;right:7%;animation:float 18s infinite ease-in-out reverse}.hologram:nth-child(3){top:40%;right:20%;animation:float 12s infinite ease-in-out}@keyframes float{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(20px,20px) scale(1.1)}50%{transform:translate(40px,-10px) scale(.9)}75%{transform:translate(-20px,20px) scale(1.05)}}@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}.input-section{display:flex;flex-direction:column;align-items:center;width:100%;max-width:500px;padding:20px;z-index:10}.input-title{font-size:2.2rem;margin-bottom:30px;font-weight:300;text-shadow:0 0 10px rgba(77,208,225,.5);letter-spacing:2px;color:#e0f7fa;font-family:'Orbitron',sans-serif}.number-input{background:rgba(10,15,35,.3);border:1px solid rgba(100,150,255,.3);border-radius:10px;padding:15px 25px;width:200px;font-size:1.8rem;text-align:center;color:#e0f7fa;margin-bottom:25px;font-family:'Orbitron',sans-serif;outline:none;transition:all .3s ease}.number-input:focus{border-color:rgba(100,200,255,.7);box-shadow:0 0 15px rgba(80,160,255,.4)}.submit-btn{background:transparent;color:rgba(200,220,255,.7);border:1px solid rgba(100,150,255,.3);border-radius:50px;padding:12px 40px;font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:300;letter-spacing:3px;cursor:pointer;transition:all .4s ease;position:relative;overflow:hidden;backdrop-filter:blur(5px);background:rgba(20,30,60,.3)}.submit-btn:hover{color:rgba(255,255,255,.9);border-color:rgba(100,150,255,.6);box-shadow:0 0 15px rgba(80,120,255,.3);letter-spacing:4px}.hidden{display:none}.message-container{position:relative;width:100%;min-height:300px;display:flex;justify-content:center;align-items:center}.glow{text-shadow:0 0 15px #4dd0e1,0 0 30px #4dd0e1;transition:text-shadow .5s ease}@media (max-width:768px){.revelation-text{font-size:1.8rem}.text-container{padding:30px 20px;min-height:250px}.continue-btn{padding:12px 40px;font-size:1.1rem}.input-title{font-size:1.8rem}.number-input{font-size:1.5rem;width:180px}}@media (max-width:480px){.revelation-text{font-size:1.5rem}.input-title{font-size:1.5rem}.number-input{font-size:1.3rem;width:160px}}</style></head><body><div class="stars" id="stars"></div><div class="hologram"></div><div class="hologram"></div><div class="hologram"></div><div class="container"><div class="text-container"><div class="input-section" id="input-section"><h2 class="input-title">输入你的幸运数字吧</h2><input type="number" class="number-input" id="lucky-number" autofocus><button id="submit-btn" class="submit-btn">哈哈<div class=""></button></div><div id="message-container" class="message-container hidden"></div></div><button id="continue-btn" class="continue-btn hidden">...</button></div><script>const t=[{content:"我喜欢<span>星空</span>"},{content:"<span>你呢</span>"},{content:"虽然我不知道你是<span>谁</span>"},{content:"但我知道能主动找到我的就是<span>我很好的朋友</span>"},{content:"当你看到这个，也许我已经<span>开学了</span>"},{content:"我的高三<span>将是忙碌的高三</span>"},{content:"咱俩也许寒假<span>见</span>"},{content:"咱俩也许<span>高考后</span>见"},{content:"<span>希望一年后咱俩还是好朋友</span>"},{content:"<span>希望咱俩是永远的挚友！</span>"},{content:"<span>加油</span>"},{content:"<span>一起上岸！乘风破浪！！</span>"},{content:"<span>加油呀！</span>"},{content:"<span>踏破银河，只为寻求那最闪耀的恒星！</span>"},{content:"<span>ヾ(≧▽≦*)ノ💙</span>"}];let c=0,e=!1;function s(){const t=document.getElementById("stars");for(let e=0;e<200;e++){const e=document.createElement("div");e.classList.add("star");const o=3*Math.random();e.style.width=`${o}px`,e.style.height=`${o}px`,e.style.left=`${100*Math.random()}%`,e.style.top=`${100*Math.random()}%`,e.style.setProperty("--d",`${4*Math.random()+2}s`),t.appendChild(e)}}function o(){if(e)return;const o=document.getElementById("message-container");o.innerHTML="",t.forEach((t,l)=>{const n=document.createElement("div");n.classList.add("revelation-text"),n.innerHTML=t.content,0===l&&n.classList.add("active"),o.appendChild(n)}),e=!0}function l(){const e=document.querySelectorAll(".revelation-text"),o=e[c];o.classList.remove("active"),c=(c+1)%t.length,setTimeout(()=>{e[c].classList.add("active")},500)}function n(){const e=document.getElementById("lucky-number");parseInt(e.value)===666&&(document.getElementById("input-section").classList.add("hidden"),document.getElementById("message-container").classList.remove("hidden"),document.getElementById("continue-btn").classList.remove("hidden"),o(),document.querySelector(".input-title").classList.add("glow"))}document.addEventListener("DOMContentLoaded",()=>{s(),document.getElementById("submit-btn").addEventListener("click",n),document.getElementById("continue-btn").addEventListener("click",l)});</script></body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>我</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:linear-gradient(135deg,#0c0f29,#1a1c40,#0a0c25);color:#e0f7fa;font-family:'Exo 2',sans-serif;min-height:100vh;overflow:hidden;position:relative}
+        .stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}
+        .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d) infinite ease-in-out}
+        .container{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:20px;text-align:center;position:relative;z-index:1}
+        .text-container{background:rgba(10,15,35,.1);border:1px solid rgba(100,150,255,.2);border-radius:15px;padding:40px;max-width:800px;width:90%;margin:0 auto 40px;box-shadow:0 0 50px rgba(80,120,255,.15),inset 0 0 20px rgba(80,120,255,.1);backdrop-filter:blur(8px);position:relative;overflow:hidden;min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+        .text-container:before{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center,rgba(100,150,255,.1) 0,transparent 70%);pointer-events:none}
+        .revelation-text{font-size:2.5rem;line-height:1.6;font-weight:300;text-align:center;width:100%;opacity:0;transition:opacity .8s ease,transform .8s ease;position:absolute;padding:20px;transform:translateY(20px)}
+        .revelation-text.active{opacity:1;transform:translateY(0)}
+        .revelation-text span{color:#FB3939;font-weight:400;text-shadow:0 0 10px rgba(77,208,225,.5)}
+        .continue-btn{background:transparent;color:rgba(200,220,255,.7);border:1px solid rgba(100,150,255,.3);border-radius:50px;padding:15px 50px;font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:300;letter-spacing:4px;cursor:pointer;transition:all .4s ease;position:relative;overflow:hidden;margin-top:30px;backdrop-filter:blur(5px);background:rgba(20,30,60,.3)}
+        .continue-btn:hover{color:rgba(255,255,255,.9);border-color:rgba(100,150,255,.6);box-shadow:0 0 20px rgba(80,120,255,.3);letter-spacing:6px}
+        .continue-btn:active{transform:translateY(2px)}
+        .continue-btn:before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:all .6s ease}
+        .continue-btn:hover:before{left:100%}
+        .hologram{position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(100,150,255,.1) 0,transparent 70%);border-radius:50%;filter:blur(40px);z-index:0}
+        .hologram:nth-child(1){top:10%;left:5%;animation:float 15s infinite ease-in-out}
+        .hologram:nth-child(2){bottom:15%;right:7%;animation:float 18s infinite ease-in-out reverse}
+        .hologram:nth-child(3){top:40%;right:20%;animation:float 12s infinite ease-in-out}
+        @keyframes float{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(20px,20px) scale(1.1)}50%{transform:translate(40px,-10px) scale(.9)}75%{transform:translate(-20px,20px) scale(1.05)}}
+        @keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}
+        .input-section{display:flex;flex-direction:column;align-items:center;width:100%;max-width:500px;padding:20px;z-index:10}
+        .input-title{font-size:2.2rem;margin-bottom:30px;font-weight:300;text-shadow:0 0 10px rgba(77,208,225,.5);letter-spacing:2px;color:#e0f7fa;font-family:'Orbitron',sans-serif}
+        .number-input{background:rgba(10,15,35,.3);border:1px solid rgba(100,150,255,.3);border-radius:10px;padding:15px 25px;width:200px;font-size:1.8rem;text-align:center;color:#e0f7fa;margin-bottom:25px;font-family:'Orbitron',sans-serif;outline:none;transition:all .3s ease}
+        .number-input:focus{border-color:rgba(100,200,255,.7);box-shadow:0 0 15px rgba(80,160,255,.4)}
+        .submit-btn{background:transparent;color:rgba(200,220,255,.7);border:1px solid rgba(100,150,255,.3);border-radius:50px;padding:12px 40px;font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:300;letter-spacing:3px;cursor:pointer;transition:all .4s ease;position:relative;overflow:hidden;backdrop-filter:blur(5px);background:rgba(20,30,60,.3)}
+        .submit-btn:hover{color:rgba(255,255,255,.9);border-color:rgba(100,150,255,.6);box-shadow:0 0 15px rgba(80,120,255,.3);letter-spacing:4px}
+        .hidden{display:none}
+        .message-container{position:relative;width:100%;min-height:300px;display:flex;justify-content:center;align-items:center}
+        .glow{text-shadow:0 0 15px #4dd0e1,0 0 30px #4dd0e1;transition:text-shadow .5s ease}
+        @media (max-width:768px){.revelation-text{font-size:1.8rem}.text-container{padding:30px 20px;min-height:250px}.continue-btn{padding:12px 40px;font-size:1.1rem}.input-title{font-size:1.8rem}.number-input{font-size:1.5rem;width:180px}}
+        @media (max-width:480px){.revelation-text{font-size:1.5rem}.input-title{font-size:1.5rem}.number-input{font-size:1.3rem;width:160px}}
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="hologram"></div>
+    <div class="hologram"></div>
+    <div class="hologram"></div>
+    <div class="container">
+        <div class="text-container">
+            <div class="input-section" id="input-section">
+                <h2 class="input-title">输入你的幸运数字吧</h2>
+                <input type="number" class="number-input" id="lucky-number" autofocus>
+                <button id="submit-btn" class="submit-btn">哈哈</button>
+            </div>
+            <div id="message-container" class="message-container hidden"></div>
+        </div>
+        <button id="continue-btn" class="continue-btn hidden">...</button>
+    </div>
+    <script>
+        const t=[{content:"我喜欢<span>星空</span>"},{content:"<span>你呢</span>"},{content:"虽然我不知道你是<span>谁</span>"},{content:"但我知道能主动找到我的就是<span>我很好的朋友</span>"},{content:"当你看到这个，也许我已经<span>开学了</span>"},{content:"我的高三<span>将是忙碌的高三</span>"},{content:"咱俩也许寒假<span>见</span>"},{content:"咱俩也许<span>高考后</span>见"},{content:"<span>希望一年后咱俩还是好朋友</span>"},{content:"<span>希望咱俩是永远的挚友！</span>"},{content:"<span>加油</span>"},{content:"<span>一起上岸！乘风破浪！！</span>"},{content:"<span>加油呀！</span>"},{content:"<span>踏破银河，只为寻求那最闪耀的恒星！</span>"},{content:"<span>ヾ(≧▽≦*)ノ💙</span>"}];
+        let c=0,e=!1;
+        
+        function s(){
+            const t=document.getElementById("stars");
+            for(let e=0;e<200;e++){
+                const e=document.createElement("div");
+                e.classList.add("star");
+                const o=3*Math.random();
+                e.style.width=`${o}px`,e.style.height=`${o}px`,e.style.left=`${100*Math.random()}%`,e.style.top=`${100*Math.random()}%`,e.style.setProperty("--d",`${4*Math.random()+2}s`),t.appendChild(e)
+            }
+        }
+        
+        function o(){
+            if(e)return;
+            const o=document.getElementById("message-container");
+            o.innerHTML="",t.forEach((t,l)=>{
+                const n=document.createElement("div");
+                n.classList.add("revelation-text"),n.innerHTML=t.content,0===l&&n.classList.add("active"),o.appendChild(n)
+            }),e=!0
+        }
+        
+        function l(){
+            const e=document.querySelectorAll(".revelation-text"),o=e[c];
+            o.classList.remove("active"),c=(c+1)%t.length,setTimeout(()=>{
+                e[c].classList.add("active")
+            },500)
+        }
+        
+        function n(){
+            const e=document.getElementById("lucky-number");
+            if(parseInt(e.value)===666){
+                document.getElementById("input-section").classList.add("hidden");
+                document.getElementById("message-container").classList.remove("hidden");
+                document.getElementById("continue-btn").classList.remove("hidden");
+                o();
+                document.querySelector(".input-title").classList.add("glow");
+            } else {
+                document.querySelector(".input-title").textContent = "记住啦";
+                document.querySelector(".number-input").value = "";
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded",()=>{
+            s();
+            document.getElementById("submit-btn").addEventListener("click",n);
+            document.getElementById("continue-btn").addEventListener("click",l);
+        });
+    </script>
+</body>
+</html>
