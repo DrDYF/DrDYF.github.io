@@ -1,86 +1,99 @@
-# DrDYF.github.io
+![ElementWars](./icon.png)
+# Element Wars 游戏设计文档
 
-## 一些有用的代码
-* PIL安装
-```bash
-pip install pillow
-```
+## 基础设定
+- **游戏引擎**： :white_check_mark: **Godot**
+- **画风**：**简单像素风**
+- **视角**：2.5D  
+- **终极目标**：夺回 **贤者之石**  
+- **强子对撞机**：**类似Undertale存档点**
 
-* 图片转Webp
-```python
-import os
-from PIL import Image
+---
 
-# 定义图片目录
-image_dir = ""
+## 背景故事 + 新手教程（暂定）
+1. 初始操作角色 **F** 与最终BOSS **O** 对战
+2. **O** 使用贤者之石击败 **F**
+3. **F** 裂变为 **智子（玩家角色）**
+4. **F** 成为游戏中的引导者
+5. 贤者之石碎裂为 **7大碎片** 分散至不同周期（待定）
 
-# 遍历目录中的所有文件
-for filename in os.listdir(image_dir):
-    if filename.endswith(".png"):
-        # 构建完整的文件路径
-        png_path = os.path.join(image_dir, filename)
-        
-        # 打开PNG图片
-        with Image.open(png_path) as img:
-            # 构建WebP文件的路径
-            webp_path = os.path.join(image_dir, filename.replace(".png", ".webp"))
-            
-            # 转换为WebP格式并保存
-            img.save(webp_path, "WEBP")
-            print(f"转换完成: {png_path} -> {webp_path}")
+---
 
-print("所有PNG图片已转换为WebP格式。")
-```
+## 周期关卡顺序（不完善）
 
-* 图片转ICO
-```python
-from PIL import Image
 
-def convert_png_to_ico(png_path, ico_path, sizes=None):
-    if sizes is None:
-        sizes = [(16, 16), (32, 32), (48, 48), (256, 256)]  # 默认尺寸
+| 周期   | 主题 | BOSS | 小怪 | MiniBOSS | 特色模式 | 流程特点 |
+|--------|------|------|------------------|--------------|--------------|------------|
+| **第一周期** | 生命摇篮 | H    | -                | -            | -            | 短流程     |
+| **第四周期** | 工业熔炉 | Cu   | -                 | Fe,Mn            | -            | -          |
+| **第五周期** | 医疗技术 | Ag   | -                | -            | -            | -          |
+| **第三周期** | 科技都市 | Si   | -                | -            | -            | -          |
+| **第六周期** | 科学前沿 | Rb   | -                | -            | -            | -          |
+| **第七周期** | 核能废墟 | U    | -                | -       | -            | -          |
+| **第二周期** | 生命神殿 | O    | -                | C, N         | **Boss Rush** | -          |
 
-    # 打开 PNG 文件
-    with Image.open(png_path) as img:
-        # 保存为 ICO 文件，支持多尺寸
-        img.save(ico_path, format="ICO", sizes=sizes)
+> **注**：  
+> - **元素图鉴**击败元素后解锁趣味科普图鉴（*“钕：让你手机震动的元素！”*）*如果有能力做*
+> - 游戏时长有待控制，可能会合并第七周期
 
-    print(f"转换成功：{ico_path}")
+---
 
-# 示例调用
-convert_png_to_ico("/storage/emulated/0/我的/123.png", "/storage/emulated/0/我的/123.ico")
-```
+## 终局剧情（暂定）
+1. 玩家与 **O** 最终决战，**O** 战败
+2. **F** 夺得贤者之石  
+3. **剧情反转**：**F** 想利用贤者之石称霸元素世界（解释各元素阻挡玩家的动机）  
+4. 玩家与 **F** 进行真正的决战  
+5. **F** 战败，玩家成为后继人 **O**  
+6. **时间闭环**：玩家（新 **O**）遇见"曾经的自己"（智子）  
+7. 游戏结束  
 
-* 图片转gif
-```python
-from PIL import Image
-import os
+---
 
-# 所有图片所在的目录
-image_folder = ''
+## 游戏特色
+1. **炼金术系统**：武器锻造/升级
+2. **Boss Rush 模式**：在第二周期实现  
+3. 
+4. *（........）*  
 
-# 输出的GIF文件名
-output_gif = '.gif'
+---
 
-# 获取所有.png文件并按名称排序
-images = [img for img in os.listdir(image_folder) if img.endswith('.png')]
-images.sort()
+## 核心属性系统
 
-# 打开所有图片并调整大小为64x64
-frames = []
-for img in images:
-    img_path = os.path.join(image_folder, img)
-    with Image.open(img_path) as im:
-        # 调整图片大小为64x64，使用抗锯齿（Image.Resampling.LANCZOS）
-        resized_im = im.resize((64, 64), Image.Resampling.LANCZOS) #64*64可以改，如果不用，就把这一行删去，把下面的resized_im换成im
-        frames.append(resized_im)
+### 1. 原子能量生命系统
+#### 本质
+- 替代传统血条，反映 **原子核稳定性**  
+- **视觉表现**：原子轨道模型，电子跃迁显示当前能量状态  
 
-# 将图片保存为GIF duration代表持续期间，loop代表重复
-frames[0].save(output_gif, format='GIF', append_images=frames[1:], save_all=True, duration=100, loop=0)
+#### 能量状态机制
+| 状态       | 能量区间    | 效果                      |
+|------------|-------------|---------------------------|
+| **基态**   | 0~30%       | 无              |
+| **亚稳态** | 30%~90%     | **获得增益效果**          |
+| **激发态** | 90%~100%    | 增益失效，**获得减益**    |
+| **死亡**   | 100%        | 释放 **γ射线** 对敌伤害   |
 
-print(f"GIF已保存到 {output_gif}")
-```
+#### 核心机制
+- 被攻击时 **能量条上升**  
+- 关键问题：如何降低能量？
+##### **能量调控方式**(*待定*)
+| 途径          | 操作                     | 风险/收益                  |
+|---------------|--------------------------|--------------------------|
+| **自然衰减**  | 站立不动\_秒             | 安全但限制机动性          |
+| **光子释放**  | 主动技能（耗能量\_%）   | 对敌伤害+清除自身减益     |
+| **环境互动**  | 进入液氮区/冷却装置     | 需破解机关才能触发        |
 
-* 
-```python
-```
+### 2. 技能系统（暂定）
+- **量子隧穿**：  
+  - 效果：短暂无敌 + 位移  
+  - **代价**：使用时 **增加原子能量**
+
+### 3. 增益与减益（如果有能力）
+
+### 4. 
+
+---
+
+## 有待考虑的问题
+- Godot接入Steam的API要第三方插件[GodotSteam GitHub](https://github.com/Gramps/GodotSteam)
+- 音乐/音效。。。
+- 美术
