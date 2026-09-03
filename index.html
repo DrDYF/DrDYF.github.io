@@ -7,7 +7,6 @@
 	<link rel="icon" href="/Pictures/Dr_DYF.webp" type="image/x-icon">
 	<title>Dr_DYF</title>
 	<style>
-		/* 原有样式保持不变 */
 		:root {
 			--bg-color: rgba(0, 0, 0, 0.1);
 			--text-color: #ffffff;
@@ -136,7 +135,7 @@
 			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 		}
 		.about-popup.show {
-			right: 20px; /* 滑入后停留在距离右侧20px的位置 */
+			right: 20px; 
 		}
 		.about-popup.hidden {
 			display: none;
@@ -293,7 +292,7 @@
 			})
 		}
 		
-		// 创建按钮ID与对应容器的映射
+		
 		const buttonContainerMap = {
 			singlePlayerButton: singlePlayerContainer,
 			multiplePlayerButton: multiplePlayerContainer,
@@ -302,7 +301,7 @@
 			optionButton: optionContainer
 		};
 		
-		// 子容器数组用于返回逻辑
+		
 		const subContainers = [
 			singlePlayerContainer,
 			multiplePlayerContainer,
@@ -316,13 +315,13 @@
 				playClickSound();
 				const target = event.target;
 				
-				// 处理导航按钮
+				
 				if (buttonContainerMap[target.id]) {
 					toggleContainers(mainContainer, buttonContainerMap[target.id]);
 					return;
 				}
 				
-				// 处理返回按钮
+				
 				if (target.classList.contains("finishButton")) {
 					const visibleContainer = subContainers.find(container => 
 						!container.classList.contains("hidden")
@@ -334,14 +333,12 @@
 			});
 		});
 		
-		// 新的关于我弹窗处理
 		aboutMeButton.addEventListener("click", () => {
 			playClickSound();
-			// 清除之前的定时器
+			
 			if (popupTimeout) {
 				clearTimeout(popupTimeout);
 			}
-			// 如果弹窗正在显示，先隐藏再重新显示以重置动画
 			if (aboutPopup.classList.contains("show")) {
 				aboutPopup.classList.remove("show");
 				setTimeout(() => {
@@ -351,24 +348,23 @@
 					});
 				}, 50);
 			} else {
-				// 显示弹窗
 				aboutPopup.classList.remove("hidden");
 				requestAnimationFrame(() => {
 					aboutPopup.classList.add("show");
 				});
 			}
 			
-			// 10秒后隐藏弹窗
+			
 			popupTimeout = setTimeout(() => {
 				aboutPopup.classList.remove("show");
-				// 等待动画结束后完全隐藏
+				
 				setTimeout(() => {
 					aboutPopup.classList.add("hidden");
 				}, 500);
 			}, 5000);
 		});
 		
-		// 点击弹窗区域可以提前关闭
+		
 		aboutPopup.addEventListener("click", () => {
 			if (popupTimeout) clearTimeout(popupTimeout);
 			aboutPopup.classList.remove("show");
