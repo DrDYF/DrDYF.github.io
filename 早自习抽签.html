@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0a12">
+<title>趣味运动争霸赛 · 出场顺序抽签</title>
+<style>
+:root{
+  --gold:#f0c05a;
+  --gold-2:#c99a3a;
+  --red:#e0524a;
+  --panel:rgba(255,255,255,.045);
+  --line:rgba(240,192,90,.16);
+  --text:#f4f0e8;
+  --muted:#9c95aa;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  padding:26px 16px calc(56px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(1100px 560px at 50% -12%, rgba(224,82,74,.20), transparent 62%),
+    radial-gradient(900px 520px at 92% 108%, rgba(240,192,90,.10), transparent 60%),
+    linear-gradient(165deg,#0c0a12 0%,#151022 52%,#0b0910 100%);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:700px;margin:0 auto}
+
+/* ---------- 头部 ---------- */
+.hd{text-align:center;margin-bottom:22px}
+.badge{
+  display:inline-block;font-size:12px;letter-spacing:.16em;
+  color:var(--gold);border:1px solid var(--line);border-radius:999px;
+  padding:5px 14px;background:rgba(240,192,90,.06);
+}
+.hd h1{
+  margin:14px 0 6px;font-size:clamp(25px,7vw,38px);letter-spacing:.06em;line-height:1.2;
+  background:linear-gradient(180deg,#fff6df 0%,var(--gold) 55%,var(--gold-2) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 6px 30px rgba(240,192,90,.18);
+}
+.hd .sub{margin:0;font-size:13px;color:var(--muted);letter-spacing:.3em}
+.rule{
+  width:120px;height:1px;margin:16px auto 0;
+  background:linear-gradient(90deg,transparent,var(--line) 20%,rgba(240,192,90,.55) 50%,var(--line) 80%,transparent);
+}
+
+/* ---------- 设置 ---------- */
+.setup{
+  margin:0 0 20px;border:1px solid var(--line);border-radius:14px;
+  background:var(--panel);overflow:hidden;
+}
+.setup summary{
+  cursor:pointer;list-style:none;padding:12px 16px;font-size:13px;color:var(--muted);
+  display:flex;align-items:center;gap:8px;user-select:none;
+}
+.setup summary::-webkit-details-marker{display:none}
+.setup summary::after{content:"▾";margin-left:auto;transition:transform .25s;font-size:11px}
+.setup[open] summary::after{transform:rotate(180deg)}
+.setup-body{padding:4px 16px 16px;border-top:1px solid rgba(255,255,255,.05)}
+.setup-body label{display:block;font-size:12px;color:var(--muted);margin:12px 0 7px}
+textarea,input[type=number]{
+  width:100%;background:rgba(0,0,0,.28);color:var(--text);
+  border:1px solid rgba(255,255,255,.09);border-radius:10px;
+  padding:10px 12px;font-size:14px;font-family:inherit;outline:none;
+  transition:border-color .2s;
+}
+textarea{resize:vertical;min-height:150px;line-height:1.7}
+textarea:focus,input[type=number]:focus{border-color:rgba(240,192,90,.45)}
+
+/* ---------- 签位网格 ---------- */
+.grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:24px}
+.card{
+  flex:0 0 calc((100% - 30px) / 4);
+  aspect-ratio:1 / 1.12;
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.018));
+  border:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  position:relative;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s,background .25s;
+}
+.card::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(80% 60% at 50% 0%,rgba(240,192,90,.10),transparent 70%);
+  opacity:0;transition:opacity .3s;
+}
+.card .name{
+  font-size:clamp(15px,4.3vw,20px);font-weight:700;letter-spacing:.02em;
+  color:var(--muted);transition:color .25s;
+}
+.card .idx{font-size:11px;color:rgba(255,255,255,.28);letter-spacing:.06em}
+
+.card.rolling .name{color:rgba(240,192,90,.85);filter:blur(.6px)}
+.card.rolling{border-color:rgba(240,192,90,.32)}
+
+.card.done{
+  border-color:rgba(240,192,90,.62);
+  background:linear-gradient(180deg,rgba(240,192,90,.14),rgba(240,192,90,.04));
+  box-shadow:0 0 0 1px rgba(240,192,90,.18),0 10px 32px -10px rgba(240,192,90,.55);
+  animation:pop .42s cubic-bezier(.2,1.5,.5,1);
+}
+.card.done::before{opacity:1}
+.card.done .name{color:#fff4d8;text-shadow:0 2px 14px rgba(240,192,90,.5)}
+.card.done .idx{color:rgba(240,192,90,.75)}
+@keyframes pop{0%{transform:scale(1)}55%{transform:scale(1.13)}100%{transform:scale(1.02)}}
+
+/* ---------- 按钮 ---------- */
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{
+  font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.08em;
+  border-radius:12px;padding:14px 34px;cursor:pointer;border:1px solid transparent;
+  transition:transform .15s,box-shadow .25s,opacity .2s,background .2s;
+}
+.btn:active{transform:scale(.97)}
+.btn.primary{
+  color:#241703;
+  background:linear-gradient(180deg,#ffe6a6 0%,var(--gold) 45%,var(--gold-2) 100%);
+  box-shadow:0 10px 30px -8px rgba(240,192,90,.6),inset 0 1px 0 rgba(255,255,255,.6);
+  animation:breathe 2.6s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{box-shadow:0 10px 30px -8px rgba(240,192,90,.55),inset 0 1px 0 rgba(255,255,255,.6)}
+  50%{box-shadow:0 14px 40px -6px rgba(240,192,90,.85),inset 0 1px 0 rgba(255,255,255,.6)}
+}
+.btn.primary:disabled{opacity:.6;animation:none;cursor:default}
+.btn.ghost{
+  color:var(--gold);background:rgba(240,192,90,.07);border-color:var(--line);
+}
+.btn.ghost:hover{background:rgba(240,192,90,.13)}
+
+/* ---------- 结果 ---------- */
+.result{margin-top:30px}
+.result h2{
+  font-size:15px;font-weight:600;color:var(--gold);letter-spacing:.22em;
+  margin:0 0 16px;text-align:center;
+}
+.day{
+  border:1px solid var(--line);border-radius:14px;background:var(--panel);
+  padding:14px 16px;margin-bottom:10px;
+  animation:rise .45s both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.day-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:11px}
+.dno{font-size:14px;font-weight:700;color:#fff4d8}
+.dcount{font-size:11px;color:var(--muted);margin-left:auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:14px;padding:7px 13px;border-radius:9px;
+  background:rgba(240,192,90,.10);border:1px solid rgba(240,192,90,.26);color:#fff4d8;
+}
+.chip b{
+  font-size:10px;font-weight:700;color:#241703;background:var(--gold);
+  width:15px;height:15px;border-radius:50%;display:grid;place-items:center;
+}
+.note{text-align:center;font-size:12px;color:var(--muted);margin-top:16px;letter-spacing:.05em}
+.note b{color:var(--gold);font-weight:600}
+
+/* ---------- 撒花 ---------- */
+.confetti{position:fixed;top:-24px;border-radius:2px;pointer-events:none;z-index:99;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(108vh) rotate(760deg);opacity:.12}}
+
+@media(max-width:600px){
+  .grid{gap:8px}
+  .card{flex:0 0 calc((100% - 16px) / 3)}
+  .btn{padding:14px 26px;flex:1 1 auto}
+  .actions{gap:8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hd">
+    <div class="badge">2026 级 · 早自习</div>
+    <h1>趣味运动争霸赛</h1>
+    <p class="sub">出场顺序抽签</p>
+    <div class="rule"></div>
+  </header>
+
+  <details class="setup">
+    <summary>⚙ 设置班级名单 / 每天场次</summary>
+    <div class="setup-body">
+      <label>班级名单（每行一个）</label>
+      <textarea id="classes" spellcheck="false"></textarea>
+      <label>每天安排几个班</label>
+      <input id="perDay" type="number" min="1" max="20" value="3">
+    </div>
+  </details>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="actions">
+    <button id="draw" class="btn primary">开始抽签</button>
+    <button id="copy" class="btn ghost" hidden>复制结果</button>
+  </div>
+
+  <section class="result" id="result" hidden>
+    <h2>出 场 安 排</h2>
+    <div id="days"></div>
+    <p class="note">共 <b id="totalDays">4</b> 天 · <b id="totalClasses">11</b> 个班</p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var DEFAULT_CLASSES = [];
+  for (var i = 1; i <= 11; i++) DEFAULT_CLASSES.push(i + '班');
+  DEFAULT_CLASSES.push('珠峰班', '双A班', '强基班');
+
+  var state = { classes: DEFAULT_CLASSES.slice(), running: false, order: [], sound: true };
+
+  var $ = function(s){ return document.querySelector(s); };
+  var gridEl = $('#grid'), btnDraw = $('#draw'), btnCopy = $('#copy');
+  var resultEl = $('#result'), daysEl = $('#days');
+  var taClasses = $('#classes'), inPerDay = $('#perDay');
+
+  /* ---------- 工具 ---------- */
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  function randInt(max){
+    if (max <= 1) return 0;
+    if (window.crypto && crypto.getRandomValues){
+      var limit = Math.floor(4294967296 / max) * max;
+      var buf = new Uint32Array(1), x;
+      do { crypto.getRandomValues(buf); x = buf[0]; } while (x >= limit);
+      return x % max;
+    }
+    return Math.floor(Math.random() * max);
+  }
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--){
+      var j = randInt(i + 1);
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  /* ---------- 音效 ---------- */
+  var actx = null;
+  function beep(freq, dur, type, vol){
+    if (!state.sound) return;
+    try{
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = type || 'sine';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(vol || 0.05, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(); o.stop(actx.currentTime + dur);
+    }catch(e){}
+  }
+  function tick(){ beep(1180, 0.035, 'square', 0.018); }
+  function ding(){ beep(880, 0.16, 'sine', 0.06); setTimeout(function(){ beep(1320, 0.28, 'sine', 0.05); }, 70); }
+
+  /* ---------- 撒花 ---------- */
+  function confetti(){
+    var colors = ['#f0c05a','#e0524a','#fff3d6','#c99a3a','#ff9c8a'];
+    for (var i = 0; i < 60; i++){
+      (function(){
+        var p = document.createElement('i');
+        p.className = 'confetti';
+        p.style.left = (Math.random() * 100) + 'vw';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.animationDelay = (Math.random() * 0.5) + 's';
+        p.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+        p.style.width = (5 + Math.random() * 6) + 'px';
+        p.style.height = (8 + Math.random() * 10) + 'px';
+        document.body.appendChild(p);
+        setTimeout(function(){ p.remove(); }, 3600);
+      })();
+    }
+  }
+
+  /* ---------- 渲染 ---------- */
+  function readClasses(){
+    return taClasses.value.split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+
+  function renderGrid(){
+    gridEl.innerHTML = '';
+    state.classes.forEach(function(){
+      var c = document.createElement('div');
+      c.className = 'card';
+      c.innerHTML = '<div class="name">?</div><div class="idx">待抽</div>';
+      gridEl.appendChild(c);
+    });
+  }
+
+  function renderResult(order){
+    var per = Math.max(1, parseInt(inPerDay.value, 10) || 3);
+    var days = [];
+    for (var i = 0; i < order.length; i += per) days.push(order.slice(i, i + per));
+
+    daysEl.innerHTML = days.map(function(d, di){
+      var chips = d.map(function(n, j){
+        var no = di * per + j + 1;
+        return '<span class="chip"><b>' + no + '</b>' + esc(n) + '</span>';
+      }).join('');
+      return '<div class="day" style="animation-delay:' + (di * 0.06) + 's">' +
+               '<div class="day-hd"><span class="dno">第 ' + (di + 1) + ' 天</span>' +
+               '<span class="dcount">' + d.length + ' 个班</span></div>' +
+               '<div class="chips">' + chips + '</div>' +
+             '</div>';
+    }).join('');
+
+    $('#totalDays').textContent = days.length;
+    $('#totalClasses').textContent = order.length;
+    resultEl.hidden = false;
+  }
+
+  /* ---------- 抽签主流程 ---------- */
+  async function draw(){
+    if (state.running) return;
+
+    var list = readClasses();
+    if (list.length < 2){ alert('至少要有 2 个班才能抽签～'); return; }
+
+    if (list.length !== state.classes.length){
+      state.classes = list;
+      renderGrid();
+    } else {
+      state.classes = list;
+    }
+
+    state.running = true;
+    btnDraw.disabled = true;
+    btnDraw.textContent = '抽签中…';
+    btnCopy.hidden = true;
+    resultEl.hidden = true;
+
+    var cards = Array.prototype.slice.call(gridEl.children);
+    cards.forEach(function(c){
+      c.classList.remove('done');
+      c.classList.add('rolling');
+      c.querySelector('.idx').textContent = '抽签中';
+    });
+
+    var rollTimer = setInterval(function(){
+      cards.forEach(function(c){
+        if (c.classList.contains('rolling')){
+          c.querySelector('.name').textContent = list[randInt(list.length)];
+        }
+      });
+      tick();
+    }, 70);
+
+    var order = shuffle(list);
+
+    for (var i = 0; i < order.length; i++){
+      await sleep(i === 0 ? 520 : 320);
+      var c = cards[i];
+      c.classList.remove('rolling');
+      c.classList.add('done');
+      c.querySelector('.name').textContent = order[i];
+      c.querySelector('.idx').textContent = '第 ' + (i + 1) + ' 位';
+      ding();
+    }
+
+    clearInterval(rollTimer);
+    state.order = order;
+    state.running = false;
+    btnDraw.disabled = false;
+    btnDraw.textContent = '再抽一次';
+    btnCopy.hidden = false;
+
+    renderResult(order);
+    confetti();
+    setTimeout(function(){
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 260);
+  }
+
+  /* ---------- 复制 ---------- */
+  function buildText(){
+    var per = Math.max(1, parseInt(inPerDay.value, 10) || 3);
+    var days = [];
+    for (var i = 0; i < state.order.length; i += per) days.push(state.order.slice(i, i + per));
+    var txt = '【早自习趣味运动争霸赛 · 出场顺序】\n';
+    days.forEach(function(d, i){ txt += '第' + (i + 1) + '天：' + d.join('、') + '\n'; });
+    return txt;
+  }
+
+  btnCopy.addEventListener('click', function(){
+    if (!state.order.length) return;
+    var txt = buildText();
+    var done = function(){
+      btnCopy.textContent = '已复制 ✓';
+      setTimeout(function(){ btnCopy.textContent = '复制结果'; }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(function(){ fallback(); });
+    } else { fallback(); }
+
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){ alert(txt); }
+      ta.remove();
+    }
+  });
+
+  /* ---------- 设置联动 ---------- */
+  taClasses.addEventListener('input', function(){
+    if (state.running) return;
+    var list = readClasses();
+    if (list.length && list.length !== state.classes.length){
+      state.classes = list;
+      renderGrid();
+      resultEl.hidden = true;
+      btnCopy.hidden = true;
+      btnDraw.textContent = '开始抽签';
+    } else {
+      state.classes = list;
+    }
+  });
+
+  inPerDay.addEventListener('input', function(){
+    if (!state.running && state.order.length) renderResult(state.order);
+  });
+
+  /* ---------- 启动 ---------- */
+  taClasses.value = DEFAULT_CLASSES.join('\n');
+  renderGrid();
+  btnDraw.addEventListener('click', draw);
+
+  // 抽完一轮后，点任意卡片也能重抽
+  gridEl.addEventListener('click', function(){
+    if (!state.running && state.order.length) draw();
+  });
+})();
+</script>
+</body>
+</html>
