@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>吉隆县热力图时序</title>
+<style>
+body { font-family: "Microsoft YaHei", sans-serif; margin: 20px; background: #f5f5f5; color: #222; }
+h2 { margin: 0 0 14px; font-size: 20px; }
+#controls { background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.1); margin-bottom: 15px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+label { font-weight: bold; }
+select, input[type=range] { padding: 6px 10px; font-size: 14px; }
+#img-container { background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.1); text-align: center; }
+#heatmap { max-width: 100%; height: auto; border: 1px solid #ddd; display: block; margin: 0 auto; }
+#info { margin-top: 10px; font-size: 16px; color: #333; }
+button { padding: 6px 16px; font-size: 14px; cursor: pointer; }
+footer { margin-top: 14px; font-size: 13px; color: #777; }
+footer a { color: #0366d6; }
+</style>
+</head>
+<body>
+<h2>吉隆县泥石流前热力图时序</h2>
+<div id="controls">
+    <label>物理量：
+        <select id="var-select">
+            <option value="H">H</option><option value="LE">LE</option><option value="Precip_1h">Precip_1h</option><option value="Rsd">Rsd</option><option value="soilT_0.1m">soilT_0.1m</option>
+        </select>
+    </label>
+    <label>时间（发生前小时）：
+        <input type="range" id="hour-slider" min="0" max="23" value="0" step="1">
+        <span id="hour-label">0</span> h
+    </label>
+    <button id="play-btn">▶ 自动播放</button>
+</div>
+<div id="img-container">
+    <img id="heatmap" src="" alt="热力图">
+    <div id="info"></div>
+</div>
+<footer>
+    图片以 WebP 提供（体积约为原图 1/10，肉眼无差别）；原始 PNG 见
+    <a href="heatmap/png/">heatmap/png/</a>。
+</footer>
+
+<script>
+const data = {
+    "H": [{"hour": 0, "file": "H_h00.png"}, {"hour": 1, "file": "H_h01.png"}, {"hour": 2, "file": "H_h02.png"}, {"hour": 3, "file": "H_h03.png"}, {"hour": 4, "file": "H_h04.png"}, {"hour": 5, "file": "H_h05.png"}, {"hour": 6, "file": "H_h06.png"}, {"hour": 7, "file": "H_h07.png"}, {"hour": 8, "file": "H_h08.png"}, {"hour": 9, "file": "H_h09.png"}, {"hour": 10, "file": "H_h10.png"}, {"hour": 11, "file": "H_h11.png"}, {"hour": 12, "file": "H_h12.png"}, {"hour": 13, "file": "H_h13.png"}, {"hour": 14, "file": "H_h14.png"}, {"hour": 15, "file": "H_h15.png"}, {"hour": 16, "file": "H_h16.png"}, {"hour": 17, "file": "H_h17.png"}, {"hour": 18, "file": "H_h18.png"}, {"hour": 19, "file": "H_h19.png"}, {"hour": 20, "file": "H_h20.png"}, {"hour": 21, "file": "H_h21.png"}, {"hour": 22, "file": "H_h22.png"}, {"hour": 23, "file": "H_h23.png"}],
+    "LE": [{"hour": 0, "file": "LE_h00.png"}, {"hour": 1, "file": "LE_h01.png"}, {"hour": 2, "file": "LE_h02.png"}, {"hour": 3, "file": "LE_h03.png"}, {"hour": 4, "file": "LE_h04.png"}, {"hour": 5, "file": "LE_h05.png"}, {"hour": 6, "file": "LE_h06.png"}, {"hour": 7, "file": "LE_h07.png"}, {"hour": 8, "file": "LE_h08.png"}, {"hour": 9, "file": "LE_h09.png"}, {"hour": 10, "file": "LE_h10.png"}, {"hour": 11, "file": "LE_h11.png"}, {"hour": 12, "file": "LE_h12.png"}, {"hour": 13, "file": "LE_h13.png"}, {"hour": 14, "file": "LE_h14.png"}, {"hour": 15, "file": "LE_h15.png"}, {"hour": 16, "file": "LE_h16.png"}, {"hour": 17, "file": "LE_h17.png"}, {"hour": 18, "file": "LE_h18.png"}, {"hour": 19, "file": "LE_h19.png"}, {"hour": 20, "file": "LE_h20.png"}, {"hour": 21, "file": "LE_h21.png"}, {"hour": 22, "file": "LE_h22.png"}, {"hour": 23, "file": "LE_h23.png"}],
+    "Precip_1h": [{"hour": 0, "file": "Precip_1h_h00.png"}, {"hour": 1, "file": "Precip_1h_h01.png"}, {"hour": 2, "file": "Precip_1h_h02.png"}, {"hour": 3, "file": "Precip_1h_h03.png"}, {"hour": 4, "file": "Precip_1h_h04.png"}, {"hour": 5, "file": "Precip_1h_h05.png"}, {"hour": 6, "file": "Precip_1h_h06.png"}, {"hour": 7, "file": "Precip_1h_h07.png"}, {"hour": 8, "file": "Precip_1h_h08.png"}, {"hour": 9, "file": "Precip_1h_h09.png"}, {"hour": 10, "file": "Precip_1h_h10.png"}, {"hour": 11, "file": "Precip_1h_h11.png"}, {"hour": 12, "file": "Precip_1h_h12.png"}, {"hour": 13, "file": "Precip_1h_h13.png"}, {"hour": 14, "file": "Precip_1h_h14.png"}, {"hour": 15, "file": "Precip_1h_h15.png"}, {"hour": 16, "file": "Precip_1h_h16.png"}, {"hour": 17, "file": "Precip_1h_h17.png"}, {"hour": 18, "file": "Precip_1h_h18.png"}, {"hour": 19, "file": "Precip_1h_h19.png"}, {"hour": 20, "file": "Precip_1h_h20.png"}, {"hour": 21, "file": "Precip_1h_h21.png"}, {"hour": 22, "file": "Precip_1h_h22.png"}, {"hour": 23, "file": "Precip_1h_h23.png"}],
+    "Rsd": [{"hour": 0, "file": "Rsd_h00.png"}, {"hour": 1, "file": "Rsd_h01.png"}, {"hour": 2, "file": "Rsd_h02.png"}, {"hour": 3, "file": "Rsd_h03.png"}, {"hour": 4, "file": "Rsd_h04.png"}, {"hour": 5, "file": "Rsd_h05.png"}, {"hour": 6, "file": "Rsd_h06.png"}, {"hour": 7, "file": "Rsd_h07.png"}, {"hour": 8, "file": "Rsd_h08.png"}, {"hour": 9, "file": "Rsd_h09.png"}, {"hour": 10, "file": "Rsd_h10.png"}, {"hour": 11, "file": "Rsd_h11.png"}, {"hour": 12, "file": "Rsd_h12.png"}, {"hour": 13, "file": "Rsd_h13.png"}, {"hour": 14, "file": "Rsd_h14.png"}, {"hour": 15, "file": "Rsd_h15.png"}, {"hour": 16, "file": "Rsd_h16.png"}, {"hour": 17, "file": "Rsd_h17.png"}, {"hour": 18, "file": "Rsd_h18.png"}, {"hour": 19, "file": "Rsd_h19.png"}, {"hour": 20, "file": "Rsd_h20.png"}, {"hour": 21, "file": "Rsd_h21.png"}, {"hour": 22, "file": "Rsd_h22.png"}, {"hour": 23, "file": "Rsd_h23.png"}],
+    "soilT_0.1m": [{"hour": 0, "file": "soilT_0.1m_h00.png"}, {"hour": 1, "file": "soilT_0.1m_h01.png"}, {"hour": 2, "file": "soilT_0.1m_h02.png"}, {"hour": 3, "file": "soilT_0.1m_h03.png"}, {"hour": 4, "file": "soilT_0.1m_h04.png"}, {"hour": 5, "file": "soilT_0.1m_h05.png"}, {"hour": 6, "file": "soilT_0.1m_h06.png"}, {"hour": 7, "file": "soilT_0.1m_h07.png"}, {"hour": 8, "file": "soilT_0.1m_h08.png"}, {"hour": 9, "file": "soilT_0.1m_h09.png"}, {"hour": 10, "file": "soilT_0.1m_h10.png"}, {"hour": 11, "file": "soilT_0.1m_h11.png"}, {"hour": 12, "file": "soilT_0.1m_h12.png"}, {"hour": 13, "file": "soilT_0.1m_h13.png"}, {"hour": 14, "file": "soilT_0.1m_h14.png"}, {"hour": 15, "file": "soilT_0.1m_h15.png"}, {"hour": 16, "file": "soilT_0.1m_h16.png"}, {"hour": 17, "file": "soilT_0.1m_h17.png"}, {"hour": 18, "file": "soilT_0.1m_h18.png"}, {"hour": 19, "file": "soilT_0.1m_h19.png"}, {"hour": 20, "file": "soilT_0.1m_h20.png"}, {"hour": 21, "file": "soilT_0.1m_h21.png"}, {"hour": 22, "file": "soilT_0.1m_h22.png"}, {"hour": 23, "file": "soilT_0.1m_h23.png"}]
+};
+const IMG_BASE = "heatmap/webp/";
+
+const varSelect = document.getElementById("var-select");
+const slider = document.getElementById("hour-slider");
+const hourLabel = document.getElementById("hour-label");
+const img = document.getElementById("heatmap");
+const info = document.getElementById("info");
+const playBtn = document.getElementById("play-btn");
+
+let playing = false;
+let timer = null;
+const preloaded = new Set();
+
+function webp(name) {
+    return IMG_BASE + name.replace(/\.png$/, ".webp");
+}
+
+function preloadVar(varName) {
+    if (preloaded.has(varName)) return;
+    preloaded.add(varName);
+    (data[varName] || []).forEach(function (d) {
+        const im = new Image();
+        im.src = webp(d.file);
+    });
+}
+
+function updateImage() {
+    const varName = varSelect.value;
+    const hour = parseInt(slider.value);
+    hourLabel.textContent = hour;
+
+    const list = data[varName] || [];
+    const item = list.find(function (d) { return d.hour === hour; });
+    if (item) {
+        img.src = webp(item.file);
+        info.textContent = varName + "  |  泥石流发生前 " + hour + " 小时";
+    } else {
+        img.src = "";
+        info.textContent = "该时刻无数据";
+    }
+}
+
+varSelect.addEventListener("change", function () {
+    preloadVar(varSelect.value);
+    updateImage();
+});
+slider.addEventListener("input", updateImage);
+
+playBtn.addEventListener("click", function () {
+    if (playing) {
+        clearInterval(timer);
+        playing = false;
+        playBtn.textContent = "▶ 自动播放";
+    } else {
+        playing = true;
+        playBtn.textContent = "■ 停止";
+        preloadVar(varSelect.value);
+        timer = setInterval(function () {
+            let h = parseInt(slider.value);
+            h = (h + 1) % (parseInt(slider.max) + 1);
+            slider.value = h;
+            updateImage();
+        }, 800);
+    }
+});
+
+preloadVar(varSelect.value);
+updateImage();
+</script>
+</body>
+</html>
