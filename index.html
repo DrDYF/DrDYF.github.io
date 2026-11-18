@@ -104,23 +104,23 @@
 			margin: 5px 0;
 		}
 		
-		.realms-row {
-			position: relative;
+		#realmsButton {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 5px;
+		}
+
+		#realmsButton>span {
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
 		.badge {
-			position: absolute;
-			top: 50%;
-			transform: translateY(-58%);
+			display: block;
+			flex: none;
 			pointer-events: none;
-		}
-
-		.badge-trial {
-			right: calc(15% + 34px);
-		}
-
-		.badge-news {
-			right: calc(15% + 12px);
 		}
 
 		@keyframes rainbow {
@@ -194,11 +194,11 @@
 		<br>
 		<button class="button" id="multiplePlayerButton">多人游戏</button>
 		<br>
-		<div class="realms-row">
-			<button class="button" id="realmsButton">Minecraft Realms</button>
-			<img class="badge badge-trial" src="Pictures/trial_available.gif" alt="">
-			<img class="badge badge-news" src="Pictures/news.png" alt="">
-		</div>
+		<button class="button" id="realmsButton">
+			<span>Minecraft Realms</span>
+			<img class="badge" src="Pictures/trial_available.gif" alt="">
+			<img class="badge" src="Pictures/news.png" alt="">
+		</button>
 		<br>
 		<button class="button" id="modButton">模组</button>
 		<br>
