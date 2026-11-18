@@ -28,7 +28,12 @@
 			color: var(--text-color);
 			text-align: center;
 			margin: 0;
-			padding: 0;
+			min-height: 100vh;
+			padding: 24px 0;
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 			background-image: url('Pictures/background.webp');
 			background-size: cover;
 			background-repeat: no-repeat;
@@ -37,9 +42,11 @@
 		}
 		
 		.container {
+			width: min(80vw, 460px);
 			max-width: 80%;
-			margin: 50% auto;
+			margin: auto 0;
 			padding: 20px;
+			box-sizing: border-box;
 			background-color: var(--bg-color);
 			border-radius: 10px;
 			opacity: 0;
@@ -87,11 +94,35 @@
 		
 		.button-container {
 			display: flex;
-			justify-content: space-between;
-			width: 73%;
+			gap: 6px;
+			width: var(--button-width);
 			margin: 2px auto;
 		}
+
+		.button-container .button {
+			width: 100%;
+			margin: 5px 0;
+		}
 		
+		.realms-row {
+			position: relative;
+		}
+
+		.badge {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-58%);
+			pointer-events: none;
+		}
+
+		.badge-trial {
+			right: calc(15% + 34px);
+		}
+
+		.badge-news {
+			right: calc(15% + 12px);
+		}
+
 		@keyframes rainbow {
 			0% {
 				background-position: 0% 50%;
@@ -163,9 +194,11 @@
 		<br>
 		<button class="button" id="multiplePlayerButton">多人游戏</button>
 		<br>
-		<button class="button" id="realmsButton">Minecraft Realms</button>
-		<img src="Pictures/trial_available.gif" style="position: absolute; margin: 13px -37px;">
-		<img src="Pictures/news.png" style="position: absolute; margin: 10px -24px;">
+		<div class="realms-row">
+			<button class="button" id="realmsButton">Minecraft Realms</button>
+			<img class="badge badge-trial" src="Pictures/trial_available.gif" alt="">
+			<img class="badge badge-news" src="Pictures/news.png" alt="">
+		</div>
 		<br>
 		<button class="button" id="modButton">模组</button>
 		<br>
